@@ -1,0 +1,81 @@
+{
+  "description": "Length-prefixed byte array test cases",
+  "encoding": "vInt length followed by raw bytes (no character encoding)",
+  "reference": "org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil.writeArray()",
+  "test_cases": [
+    {
+      "description": "Empty array",
+      "value": [],
+      "length": 0,
+      "expected_hex": "00",
+      "expected_bytes": [0]
+    },
+    {
+      "description": "Single byte",
+      "value": [1],
+      "length": 1,
+      "expected_hex": "01 01",
+      "expected_bytes": [1, 1]
+    },
+    {
+      "description": "Three bytes",
+      "value": [1, 2, 3],
+      "length": 3,
+      "expected_hex": "03 01 02 03",
+      "expected_bytes": [3, 1, 2, 3]
+    },
+    {
+      "description": "Bytes with high values",
+      "value": [255, 254, 253],
+      "length": 3,
+      "expected_hex": "03 FF FE FD",
+      "expected_bytes": [3, 255, 254, 253]
+    },
+    {
+      "description": "All zeros",
+      "value": [0, 0, 0, 0],
+      "length": 4,
+      "expected_hex": "04 00 00 00 00",
+      "expected_bytes": [4, 0, 0, 0, 0]
+    },
+    {
+      "description": "Cache key example (binary)",
+      "value": [107, 101, 121, 49],
+      "length": 4,
+      "expected_hex": "04 6B 65 79 31",
+      "expected_bytes": [4, 107, 101, 121, 49],
+      "note": "This happens to be 'key1' in ASCII, but treated as raw bytes"
+    },
+    {
+      "description": "16-byte value (UUID-like)",
+      "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16],
+      "length": 16,
+      "expected_hex": "10 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 10",
+      "expected_bytes": [16, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]
+    },
+    {
+      "description": "Array with length > 127 (tests vInt length encoding)",
+      "value": [0, 1, 2, 3],
+      "length": 200,
+      "expected_hex": "C8 01 00 01 02 03 ...",
+      "expected_bytes": [200, 1, 0, 1, 2, 3],
+      "note": "Length 200 encodes as vInt: 0xC8 0x01. Shown with first few data bytes",
+      "full_value_omitted": true,
+      "full_value_pattern": "0, 1, 2, 3, 4, ... 199 (200 bytes total)"
+    },
+    {
+      "description": "Serialized Java object header example",
+      "value": [172, 237, 0, 5],
+      "length": 4,
+      "expected_hex": "04 AC ED 00 05",
+      "expected_bytes": [4, 172, 237, 0, 5],
+      "note": "0xACED0005 is Java serialization magic + version"
+    }
+  ],
+  "important_notes": [
+    "Byte arrays are raw bytes, no character encoding applied",
+    "Can contain any byte values 0x00-0xFF",
+    "Used for cache keys, values, and other binary data",
+    "Length is always encoded as vInt before the data"
+  ]
+}

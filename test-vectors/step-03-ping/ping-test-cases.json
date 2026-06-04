@@ -1,0 +1,52 @@
+{
+  "description": "PING operation test cases - request/response patterns",
+  "note": "PING has no payload beyond headers",
+  "test_cases": [
+    {
+      "description": "Basic PING to default cache",
+      "request": {
+        "messageId": 1,
+        "cacheName": ""
+      },
+      "request_bytes": [160, 1, 40, 23, 0, 0, 1, 0],
+      "request_hex": "A0 01 28 17 00 00 01 00",
+      "response_bytes": [161, 1, 24, 0, 0],
+      "response_hex": "A1 01 18 00 00",
+      "expected_success": true
+    },
+    {
+      "description": "PING with named cache",
+      "request": {
+        "messageId": 2,
+        "cacheName": "myCache"
+      },
+      "request_bytes": [160, 2, 40, 23, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0],
+      "request_hex": "A0 02 28 17 07 6D 79 43 61 63 68 65 00 01 00",
+      "response_bytes": [161, 2, 24, 0, 0],
+      "response_hex": "A1 02 18 00 00",
+      "expected_success": true
+    },
+    {
+      "description": "PING with large message ID",
+      "request": {
+        "messageId": 1000000,
+        "cacheName": ""
+      },
+      "request_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0],
+      "request_hex": "A0 C0 84 3D 28 17 00 00 01 00",
+      "response_bytes": [161, 192, 132, 61, 24, 0, 0],
+      "response_hex": "A1 C0 84 3D 18 00 00",
+      "expected_success": true
+    }
+  ],
+  "operation_codes": {
+    "PING_REQUEST": 23,
+    "PING_RESPONSE": 24
+  },
+  "notes": [
+    "PING request has only header, no payload",
+    "PING response has only header, no payload",
+    "Status 0x00 = success, anything else = error",
+    "Response message ID must match request message ID"
+  ]
+}

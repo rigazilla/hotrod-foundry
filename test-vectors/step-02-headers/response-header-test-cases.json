@@ -1,0 +1,180 @@
+{
+  "description": "Hot Rod response header test cases",
+  "encoding": "Response header format: magic(0xA1) + messageId(vLong) + opcode + status + topologyChangeMarker",
+  "reference": "org.infinispan.client.hotrod.impl.protocol response parsing",
+  "protocol_version": "4.0",
+  "test_cases": [
+    {
+      "description": "PING response - success",
+      "header": {
+        "magic": 161,
+        "messageId": 1,
+        "opcode": 24,
+        "status": 0,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 01 18 00 00",
+      "expected_bytes": [161, 1, 24, 0, 0],
+      "note": "PING_RESPONSE opcode=0x18, NO_ERROR status, no topology change"
+    },
+    {
+      "description": "GET response - success",
+      "header": {
+        "magic": 161,
+        "messageId": 2,
+        "opcode": 4,
+        "status": 0,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 02 04 00 00",
+      "expected_bytes": [161, 2, 4, 0, 0],
+      "note": "GET_RESPONSE opcode=0x04, NO_ERROR status"
+    },
+    {
+      "description": "GET response - key not found",
+      "header": {
+        "magic": 161,
+        "messageId": 3,
+        "opcode": 4,
+        "status": 2,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 03 04 02 00",
+      "expected_bytes": [161, 3, 4, 2, 0],
+      "note": "KEY_DOES_NOT_EXIST status=0x02"
+    },
+    {
+      "description": "PUT response - success with previous value",
+      "header": {
+        "magic": 161,
+        "messageId": 4,
+        "opcode": 2,
+        "status": 3,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 04 02 03 00",
+      "expected_bytes": [161, 4, 2, 3, 0],
+      "note": "PUT_RESPONSE opcode=0x02, SUCCESS_WITH_PREVIOUS status=0x03"
+    },
+    {
+      "description": "REMOVE response - success",
+      "header": {
+        "magic": 161,
+        "messageId": 5,
+        "opcode": 12,
+        "status": 0,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 05 0C 00 00",
+      "expected_bytes": [161, 5, 12, 0, 0],
+      "note": "REMOVE_RESPONSE opcode=0x0C"
+    },
+    {
+      "description": "ERROR response - unknown command",
+      "header": {
+        "magic": 161,
+        "messageId": 6,
+        "opcode": 80,
+        "status": 130,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 06 50 82 00",
+      "expected_bytes": [161, 6, 80, 130, 0],
+      "note": "ERROR_RESPONSE opcode=0x50, UNKNOWN_COMMAND status=0x82"
+    },
+    {
+      "description": "Response with topology change",
+      "header": {
+        "magic": 161,
+        "messageId": 7,
+        "opcode": 4,
+        "status": 0,
+        "topologyChangeMarker": 1
+      },
+      "expected_hex": "A1 07 04 00 01",
+      "expected_bytes": [161, 7, 4, 0, 1],
+      "note": "Topology change marker=1 (topology data would follow, handled in Step 11)"
+    },
+    {
+      "description": "Large message ID response",
+      "header": {
+        "magic": 161,
+        "messageId": 1000000,
+        "opcode": 24,
+        "status": 0,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 C0 84 3D 18 00 00",
+      "expected_bytes": [161, 192, 132, 61, 24, 0, 0],
+      "note": "Message ID 1000000 as vLong"
+    },
+    {
+      "description": "SERVER_ERROR response",
+      "header": {
+        "magic": 161,
+        "messageId": 10,
+        "opcode": 80,
+        "status": 133,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 0A 50 85 00",
+      "expected_bytes": [161, 10, 80, 133, 0],
+      "note": "ERROR_RESPONSE, SERVER_ERROR status=0x85"
+    },
+    {
+      "description": "PUT_IF_ABSENT response - not put",
+      "header": {
+        "magic": 161,
+        "messageId": 11,
+        "opcode": 6,
+        "status": 1,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 0B 06 01 00",
+      "expected_bytes": [161, 11, 6, 1, 0],
+      "note": "PUT_IF_ABSENT_RESPONSE opcode=0x06, NOT_PUT_REMOVED_REPLACED status=0x01"
+    },
+    {
+      "description": "GET_WITH_METADATA response",
+      "header": {
+        "magic": 161,
+        "messageId": 12,
+        "opcode": 28,
+        "status": 0,
+        "topologyChangeMarker": 0
+      },
+      "expected_hex": "A1 0C 1C 00 00",
+      "expected_bytes": [161, 12, 28, 0, 0],
+      "note": "GET_WITH_METADATA_RESPONSE opcode=0x1C"
+    }
+  ],
+  "status_codes": {
+    "NO_ERROR": 0,
+    "NOT_PUT_REMOVED_REPLACED": 1,
+    "KEY_DOES_NOT_EXIST": 2,
+    "SUCCESS_WITH_PREVIOUS": 3,
+    "NOT_EXECUTED_WITH_PREVIOUS": 4,
+    "INVALID_MAGIC_OR_MESSAGE_ID": 129,
+    "UNKNOWN_COMMAND": 130,
+    "UNKNOWN_VERSION": 131,
+    "REQUEST_PARSING_ERROR": 132,
+    "SERVER_ERROR": 133,
+    "COMMAND_TIMEOUT": 134
+  },
+  "response_opcodes": {
+    "PUT_RESPONSE": 2,
+    "GET_RESPONSE": 4,
+    "PUT_IF_ABSENT_RESPONSE": 6,
+    "REMOVE_RESPONSE": 12,
+    "PING_RESPONSE": 24,
+    "GET_WITH_METADATA_RESPONSE": 28,
+    "ERROR_RESPONSE": 80
+  },
+  "important_notes": [
+    "Response opcode is usually request opcode + 1",
+    "ERROR_RESPONSE (0x50) can appear for any request",
+    "Status codes 0x00-0x7F are success variants",
+    "Status codes 0x80+ are errors",
+    "Topology change marker 1 means topology data follows (not in this test, see Step 11)"
+  ]
+}

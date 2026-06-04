@@ -1,0 +1,62 @@
+{
+  "description": "Variable-length 64-bit unsigned integer (vLong) test cases",
+  "encoding": "Same as vInt but supports up to 9 bytes for 64-bit values",
+  "reference": "org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil.writeVLong()",
+  "test_cases": [
+    {
+      "description": "Zero",
+      "value": 0,
+      "expected_hex": "00",
+      "expected_bytes": [0]
+    },
+    {
+      "description": "127",
+      "value": 127,
+      "expected_hex": "7F",
+      "expected_bytes": [127]
+    },
+    {
+      "description": "128",
+      "value": 128,
+      "expected_hex": "80 01",
+      "expected_bytes": [128, 1]
+    },
+    {
+      "description": "Max uint32",
+      "value": 4294967295,
+      "expected_hex": "FF FF FF FF 0F",
+      "expected_bytes": [255, 255, 255, 255, 15]
+    },
+    {
+      "description": "uint32 + 1 (first 5-byte value)",
+      "value": 4294967296,
+      "expected_hex": "80 80 80 80 10",
+      "expected_bytes": [128, 128, 128, 128, 16]
+    },
+    {
+      "description": "1 trillion",
+      "value": 1000000000000,
+      "expected_hex": "80 A0 94 A5 8D 1D",
+      "expected_bytes": [128, 160, 148, 165, 141, 29]
+    },
+    {
+      "description": "Max 5 bytes (35 bits)",
+      "value": 34359738367,
+      "expected_hex": "FF FF FF FF 7F",
+      "expected_bytes": [255, 255, 255, 255, 127]
+    },
+    {
+      "description": "First 6-byte value",
+      "value": 34359738368,
+      "expected_hex": "80 80 80 80 80 01",
+      "expected_bytes": [128, 128, 128, 128, 128, 1]
+    },
+    {
+      "description": "Max 9 bytes (63 bits usable)",
+      "value": 9223372036854775807,
+      "expected_hex": "FF FF FF FF FF FF FF FF 7F",
+      "expected_bytes": [255, 255, 255, 255, 255, 255, 255, 255, 127],
+      "note": "Max int64 (signed), vLong is unsigned but Java uses signed long"
+    }
+  ]
+}

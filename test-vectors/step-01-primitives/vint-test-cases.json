@@ -1,0 +1,104 @@
+{
+  "description": "Variable-length 32-bit unsigned integer (vInt) test cases",
+  "encoding": "Each test case shows input value and expected hex bytes",
+  "reference": "org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil.writeVInt()",
+  "test_cases": [
+    {
+      "description": "Zero",
+      "value": 0,
+      "expected_hex": "00",
+      "expected_bytes": [0]
+    },
+    {
+      "description": "One",
+      "value": 1,
+      "expected_hex": "01",
+      "expected_bytes": [1]
+    },
+    {
+      "description": "Max single byte (7 bits)",
+      "value": 127,
+      "expected_hex": "7F",
+      "expected_bytes": [127]
+    },
+    {
+      "description": "First two-byte value",
+      "value": 128,
+      "expected_hex": "80 01",
+      "expected_bytes": [128, 1]
+    },
+    {
+      "description": "255",
+      "value": 255,
+      "expected_hex": "FF 01",
+      "expected_bytes": [255, 1]
+    },
+    {
+      "description": "256",
+      "value": 256,
+      "expected_hex": "80 02",
+      "expected_bytes": [128, 2]
+    },
+    {
+      "description": "300",
+      "value": 300,
+      "expected_hex": "AC 02",
+      "expected_bytes": [172, 2],
+      "explanation": "300 = 0b100101100 -> byte1: 0x2C|0x80 = 0xAC, byte2: 0x02"
+    },
+    {
+      "description": "Max two bytes (14 bits)",
+      "value": 16383,
+      "expected_hex": "FF 7F",
+      "expected_bytes": [255, 127]
+    },
+    {
+      "description": "First three-byte value",
+      "value": 16384,
+      "expected_hex": "80 80 01",
+      "expected_bytes": [128, 128, 1]
+    },
+    {
+      "description": "65535 (max uint16)",
+      "value": 65535,
+      "expected_hex": "FF FF 03",
+      "expected_bytes": [255, 255, 3]
+    },
+    {
+      "description": "1 million",
+      "value": 1000000,
+      "expected_hex": "C0 84 3D",
+      "expected_bytes": [192, 132, 61]
+    },
+    {
+      "description": "Max three bytes (21 bits)",
+      "value": 2097151,
+      "expected_hex": "FF FF 7F",
+      "expected_bytes": [255, 255, 127]
+    },
+    {
+      "description": "First four-byte value",
+      "value": 2097152,
+      "expected_hex": "80 80 80 01",
+      "expected_bytes": [128, 128, 128, 1]
+    },
+    {
+      "description": "Max four bytes (28 bits)",
+      "value": 268435455,
+      "expected_hex": "FF FF FF 7F",
+      "expected_bytes": [255, 255, 255, 127]
+    },
+    {
+      "description": "First five-byte value",
+      "value": 268435456,
+      "expected_hex": "80 80 80 80 01",
+      "expected_bytes": [128, 128, 128, 128, 1]
+    },
+    {
+      "description": "Max uint32",
+      "value": 4294967295,
+      "expected_hex": "FF FF FF FF 0F",
+      "expected_bytes": [255, 255, 255, 255, 15]
+    }
+  ]
+}

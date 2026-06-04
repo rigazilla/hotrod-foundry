@@ -1,0 +1,182 @@
+{
+  "description": "Hot Rod request header test cases",
+  "encoding": "Request header format: magic(0xA0) + messageId(vLong) + version + opcode + cacheName(string) + flags(vInt) + clientIntelligence + topologyId(vInt)",
+  "reference": "org.infinispan.client.hotrod.impl.protocol.Codec30.writeHeader()",
+  "protocol_version": "4.0 (0x28)",
+  "test_cases": [
+    {
+      "description": "PING request - minimal header",
+      "header": {
+        "magic": 160,
+        "messageId": 1,
+        "version": 40,
+        "opcode": 23,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 01 28 17 00 00 01 00",
+      "expected_bytes": [160, 1, 40, 23, 0, 0, 1, 0],
+      "note": "PING opcode=0x17, empty cache name, no flags"
+    },
+    {
+      "description": "GET request with named cache",
+      "header": {
+        "magic": 160,
+        "messageId": 2,
+        "version": 40,
+        "opcode": 3,
+        "cacheName": "myCache",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 02 28 03 07 6D 79 43 61 63 68 65 00 01 00",
+      "expected_bytes": [160, 2, 40, 3, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0],
+      "note": "GET opcode=0x03, cache name 'myCache' (7 bytes)"
+    },
+    {
+      "description": "PUT request with flags",
+      "header": {
+        "magic": 160,
+        "messageId": 3,
+        "version": 40,
+        "opcode": 1,
+        "cacheName": "testCache",
+        "flags": 1,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 03 28 01 09 74 65 73 74 43 61 63 68 65 01 01 00",
+      "expected_bytes": [160, 3, 40, 1, 9, 116, 101, 115, 116, 67, 97, 99, 104, 101, 1, 1, 0],
+      "note": "PUT opcode=0x01, cache 'testCache', flags=0x01 (FORCE_RETURN_VALUE)"
+    },
+    {
+      "description": "Large message ID",
+      "header": {
+        "magic": 160,
+        "messageId": 1000000,
+        "version": 40,
+        "opcode": 23,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 C0 84 3D 28 17 00 00 01 00",
+      "expected_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0],
+      "note": "Message ID 1000000 encodes as vLong [0xC0, 0x84, 0x3D]"
+    },
+    {
+      "description": "REMOVE request",
+      "header": {
+        "magic": 160,
+        "messageId": 5,
+        "version": 40,
+        "opcode": 11,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 05 28 0B 00 00 01 00",
+      "expected_bytes": [160, 5, 40, 11, 0, 0, 1, 0],
+      "note": "REMOVE opcode=0x0B"
+    },
+    {
+      "description": "STATS request",
+      "header": {
+        "magic": 160,
+        "messageId": 10,
+        "version": 40,
+        "opcode": 21,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 0A 28 15 00 00 01 00",
+      "expected_bytes": [160, 10, 40, 21, 0, 0, 1, 0],
+      "note": "STATS opcode=0x15"
+    },
+    {
+      "description": "Request with topology ID",
+      "header": {
+        "magic": 160,
+        "messageId": 100,
+        "version": 40,
+        "opcode": 3,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 3,
+        "topologyId": 5
+      },
+      "expected_hex": "A0 64 28 03 00 00 03 05",
+      "expected_bytes": [160, 100, 40, 3, 0, 0, 3, 5],
+      "note": "Client intelligence 3 (HASH_DISTRIBUTION_AWARE), topology ID 5"
+    },
+    {
+      "description": "GET_WITH_METADATA request",
+      "header": {
+        "magic": 160,
+        "messageId": 7,
+        "version": 40,
+        "opcode": 27,
+        "cacheName": "dataCache",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 07 28 1B 09 64 61 74 61 43 61 63 68 65 00 01 00",
+      "expected_bytes": [160, 7, 40, 27, 9, 100, 97, 116, 97, 67, 97, 99, 104, 101, 0, 1, 0],
+      "note": "GET_WITH_METADATA opcode=0x1B, cache 'dataCache'"
+    },
+    {
+      "description": "Multiple flags set",
+      "header": {
+        "magic": 160,
+        "messageId": 8,
+        "version": 40,
+        "opcode": 1,
+        "cacheName": "",
+        "flags": 7,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 08 28 01 00 07 01 00",
+      "expected_bytes": [160, 8, 40, 1, 0, 7, 1, 0],
+      "note": "Flags = 0x07 (FORCE_RETURN_VALUE | DEFAULT_LIFESPAN | DEFAULT_MAXIDLE)"
+    },
+    {
+      "description": "Protocol 4.1",
+      "header": {
+        "magic": 160,
+        "messageId": 1,
+        "version": 41,
+        "opcode": 23,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0
+      },
+      "expected_hex": "A0 01 29 17 00 00 01 00",
+      "expected_bytes": [160, 1, 41, 23, 0, 0, 1, 0],
+      "note": "Protocol 4.1 (version byte 0x29)"
+    }
+  ],
+  "operation_codes": {
+    "PUT": 1,
+    "GET": 3,
+    "REMOVE": 11,
+    "CONTAINS_KEY": 15,
+    "PING": 23,
+    "STATS": 21,
+    "GET_WITH_METADATA": 27
+  },
+  "client_intelligence_values": {
+    "BASIC": 1,
+    "TOPOLOGY_AWARE": 2,
+    "HASH_DISTRIBUTION_AWARE": 3
+  }
+}

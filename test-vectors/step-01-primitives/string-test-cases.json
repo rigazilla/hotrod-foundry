@@ -1,0 +1,83 @@
+{
+  "description": "Length-prefixed UTF-8 string test cases",
+  "encoding": "vInt length (in bytes) followed by UTF-8 encoded bytes",
+  "reference": "org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil.writeString()",
+  "charset": "UTF-8",
+  "test_cases": [
+    {
+      "description": "Empty string",
+      "value": "",
+      "length_bytes": 0,
+      "utf8_bytes": [],
+      "expected_hex": "00",
+      "expected_bytes": [0]
+    },
+    {
+      "description": "Single ASCII character",
+      "value": "a",
+      "length_bytes": 1,
+      "utf8_bytes": [97],
+      "expected_hex": "01 61",
+      "expected_bytes": [1, 97]
+    },
+    {
+      "description": "ASCII word",
+      "value": "hello",
+      "length_bytes": 5,
+      "utf8_bytes": [104, 101, 108, 108, 111],
+      "expected_hex": "05 68 65 6C 6C 6F",
+      "expected_bytes": [5, 104, 101, 108, 108, 111]
+    },
+    {
+      "description": "String with 2-byte UTF-8 character",
+      "value": "café",
+      "length_bytes": 5,
+      "utf8_bytes": [99, 97, 102, 195, 169],
+      "expected_hex": "05 63 61 66 C3 A9",
+      "expected_bytes": [5, 99, 97, 102, 195, 169],
+      "note": "é = 0xC3 0xA9 in UTF-8 (2 bytes)"
+    },
+    {
+      "description": "String with 3-byte UTF-8 character",
+      "value": "hello世界",
+      "length_bytes": 11,
+      "utf8_bytes": [104, 101, 108, 108, 111, 228, 184, 150, 231, 149, 140],
+      "expected_hex": "0B 68 65 6C 6C 6F E4 B8 96 E7 95 8C",
+      "expected_bytes": [11, 104, 101, 108, 108, 111, 228, 184, 150, 231, 149, 140],
+      "note": "世 = 0xE4 0xB8 0x96, 界 = 0xE7 0x95 0x8C (3 bytes each)"
+    },
+    {
+      "description": "String with 4-byte UTF-8 character (emoji)",
+      "value": "fire🔥",
+      "length_bytes": 8,
+      "utf8_bytes": [102, 105, 114, 101, 240, 159, 148, 165],
+      "expected_hex": "08 66 69 72 65 F0 9F 94 A5",
+      "expected_bytes": [8, 102, 105, 114, 101, 240, 159, 148, 165],
+      "note": "🔥 = 0xF0 0x9F 0x94 0xA5 (4 bytes)"
+    },
+    {
+      "description": "Cache name example",
+      "value": "myCache",
+      "length_bytes": 7,
+      "utf8_bytes": [109, 121, 67, 97, 99, 104, 101],
+      "expected_hex": "07 6D 79 43 61 63 68 65",
+      "expected_bytes": [7, 109, 121, 67, 97, 99, 104, 101]
+    },
+    {
+      "description": "Long string (tests vInt length > 127)",
+      "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "length_bytes": 200,
+      "utf8_bytes": [97, 97, 97],
+      "expected_hex": "C8 01 61 61 61 ...",
+      "expected_bytes": [200, 1, 97, 97, 97, 97, 97, 97, 97, 97],
+      "note": "Length 200 encodes as vInt: 0xC8 0x01. Then 200 × 'a' (0x61)",
+      "full_bytes_omitted": true
+    }
+  ],
+  "important_notes": [
+    "Length is BYTE count, not character count!",
+    "Multi-byte UTF-8 characters count as multiple bytes",
+    "Always use UTF-8 encoding, not platform default",
+    "Empty string encodes as single 0x00 byte (length = 0)"
+  ]
+}
