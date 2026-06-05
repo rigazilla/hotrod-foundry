@@ -10,15 +10,13 @@
 
 ### 1. DO NOT Write Code in hotrod-foundry/
 
-**DO NOT write code in the `hotrod-foundry/` directory.**
-
 This repository contains **documentation only**. Your implementation must be in a **separate directory**.
 
 **First action**: Create a new directory OUTSIDE of hotrod-foundry:
 ```bash
 cd ..  # Exit hotrod-foundry
-mkdir hotrod-client-[language]
-cd hotrod-client-[language]
+mkdir [language]-client
+cd [language]-client
 # NOW you can start coding
 ```
 
@@ -26,19 +24,7 @@ If you've already written code in hotrod-foundry/, **STOP** and move it to a sep
 
 ### 2. DO NOT Search for Existing Implementations
 
-**DO NOT look for existing Hot Rod client implementations in your target language.**
-
-**Prohibited actions**:
-- ❌ Searching GitHub for "[language] Hot Rod client"
-- ❌ Looking for existing npm/NuGet/PyPI packages
-- ❌ Checking if someone already implemented it
-- ❌ Copying code from other implementations
-
-**Why?**
-- You are implementing FROM SCRATCH
-- Your references are: (1) Java implementation, (2) hotrod-foundry docs, (3) test vectors
-- Existing clients may be incomplete, outdated, or wrong
-- Your job is to create a NEW implementation, not find an old one
+**DO NOT look for existing Hot Rod client implementations in your target language unless explicitly requested by the user.**
 
 **What to do instead**:
 1. ✅ Study the **Java** implementation (reference)
@@ -46,10 +32,6 @@ If you've already written code in hotrod-foundry/, **STOP** and move it to a sep
 3. ✅ Use test vectors for validation
 4. ✅ Implement step-by-step from ROADMAP
 5. ✅ Write code yourself based on Java logic
-
-**If you catch yourself searching for existing code, STOP immediately.**
-
-Your task is **implementation**, not **discovery**.
 
 ---
 
@@ -62,7 +44,6 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 3. **Read `ROADMAP.md`** to understand the implementation steps
 4. **Read `docs/development-guidelines.md`** for process requirements
 5. **Present your implementation plan to the user** - WAIT for approval before coding
-6. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
 7. **Follow the roadmap step-by-step** (don't skip ahead)
 8. **Use Java code as reference** for each step (MANDATORY)
 9. **Use test vectors for validation** (not live server initially)
@@ -86,7 +67,6 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 ### Implementation Approach
 - Following ROADMAP.md steps 0-8
 - Test-driven development with test vectors
-- CI/CD with GitHub Actions
 
 ### Steps I'll Implement
 1. Step 0: Foundation Setup
@@ -99,7 +79,7 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 8. [Optional] Step 7+: GET, PUT operations
 
 ### Deliverables
-- Source code in hotrod-client-[language]/
+- Source code in [language]-client/
 - Cross-platform support: Linux (Fedora/RHEL) + Windows
 - Unit tests with 80%+ coverage
 - Integration tests against Infinispan 16.0
@@ -129,11 +109,6 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 - ⚠️ Suggest minimal Step 0 if they want to move fast
 - ✅ Wait for confirmation
 
-**User says "Work in hotrod-foundry/ for now":**
-- ❌ Politely refuse - explain separation requirement
-- ❌ Emphasize this is non-negotiable for project structure
-- ✅ Offer to create directory in their preferred location
-
 ---
 
 ## Core Principles
@@ -151,7 +126,6 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 - Visual Studio compatibility (for C/C++)
 
 **Requirements**:
-- ✅ CI/CD must test on BOTH platforms
 - ✅ No platform-specific code without fallbacks
 - ✅ Use cross-platform libraries (e.g., OpenSSL available on both)
 - ✅ Build system works on both (CMake, Gradle, npm, etc.)
@@ -183,7 +157,6 @@ Operations (Steps 6+):
 ```
 
 **Why this order?**
-- After Step 5, the client is production-ready (can release v0.1)
 - Every operation benefits from auth, topology, and routing
 - User can deploy with just PING/GET/PUT and still have proper cluster support
 
@@ -233,13 +206,6 @@ You should:
 - ❌ Implement from docs alone without checking Java
 - ❌ Skip reading the Java code
 
-**Where to find it**:
-```bash
-git clone https://github.com/infinispan/infinispan.git
-cd infinispan/client/hotrod-client/src/main/java/org/infinispan/client/hotrod
-# Now browse impl/ for operation implementations
-```
-
 ### 4. Test-Driven Development (MANDATORY)
 
 **For EVERY step**, follow this workflow:
@@ -256,76 +222,12 @@ cd infinispan/client/hotrod-client/src/main/java/org/infinispan/client/hotrod
 9. Update PROGRESS.md           → Mark step complete
 ```
 
-**NEVER skip to live server testing without byte-level validation first.**
-
 **Integration Testing Requirements**:
-- ✅ Use **Testcontainers** library (available for all major languages)
-- ✅ Automatic Infinispan server lifecycle (start/stop)
-- ✅ No manual Docker commands in tests
-- ✅ Works in CI without manual setup
-
-**Example Testcontainers usage**:
-```csharp
-// C#: NuGet package 'Testcontainers'
-var container = new InfinispanBuilder()
-    .WithImage("infinispan/server:16.0")
-    .WithUsername("admin")
-    .WithPassword("password")
-    .Build();
-
-await container.StartAsync();
-var host = container.GetHost();
-var port = container.GetMappedPublicPort(11222);
-
-// Run tests...
-
-await container.DisposeAsync();  // Automatic cleanup
-```
+- ✅ Use **Testcontainers** library if available
+- ✅ Ask the user if unsure
 
 See `docs/development-guidelines.md` for complete Testcontainers examples in all languages.
 
-### 5. Separate Repository (CRITICAL - DO NOT SKIP)
-
-**STOP**: Before writing ANY code, create a separate directory/repository.
-
-**NEVER EVER** put implementation code in `hotrod-foundry/`.
-
-**Rule**: `hotrod-foundry/` = docs only. Your code = separate directory/repo.
-
-**FIRST STEP - Create separate directory:**
-
-```bash
-# If user has hotrod-foundry cloned:
-cd /path/to/parent-directory
-mkdir hotrod-client-[language]
-cd hotrod-client-[language]
-git init
-
-# Directory structure:
-hotrod-foundry/                 ← DOCS ONLY (read-only reference)
-├── docs/
-├── test-vectors/
-└── AGENTS.md                   ← You are here
-
-hotrod-client-[language]/       ← YOUR CODE GOES HERE
-├── src/                        ← Implementation
-├── tests/                      ← Tests
-├── PROGRESS.md                 ← Progress tracker
-└── .github/workflows/          ← CI/CD
-```
-
-**If you write code in hotrod-foundry/, STOP immediately and:**
-1. Create the separate directory
-2. Move all implementation files there
-3. Continue development in the new location
-
-**Why separate?**
-- hotrod-foundry updates benefit all languages
-- Each client has its own release cycle
-- Clean separation of docs vs code
-- Multiple language implementations can coexist
-
----
 
 ## How to Use Each Documentation Type
 
@@ -339,33 +241,6 @@ hotrod-client-[language]/       ← YOUR CODE GOES HERE
 3. Use "Success Criteria" as checklist
 4. Use "Java Reference" to find reference implementation
 
-**Example workflow**:
-```markdown
-User: "Implement a C# Hot Rod client"
-
-You: 
-  1. Read AGENTS.md, ROADMAP.md, development-guidelines.md
-  2. Clone Java reference: `git clone https://github.com/infinispan/infinispan.git`
-  3. DO NOT search for existing C# Hot Rod clients ← PROHIBITED
-  4. Present implementation plan to user
-  5. WAIT for user approval ← MANDATORY PAUSE
-  6. Check current directory with `pwd`
-  7. If in hotrod-foundry/, exit: `cd ..`
-  8. Create separate directory: `mkdir hotrod-client-csharp`
-  9. Enter new directory: `cd hotrod-client-csharp`
-  10. Verify location: `pwd` (should NOT contain "hotrod-foundry")
-  11. Initialize git: `git init`
-  12. Start Step 0: Set up project structure, CI/CD
-  13. Start Step 1: 
-      a. Read ROADMAP Step 1 docs
-      b. Find Java Reference: org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil
-      c. Study writeVInt/readVInt in Java source
-      d. Load test vectors
-      e. Implement in C# based on Java logic (NOT from existing C# code)
-      f. Validate bytes match test vectors
-  14. ... (continue step by step, always checking Java first, NEVER searching for existing implementations)
-```
-
 ### ☕ Java Reference Implementation
 
 **What**: The authoritative Hot Rod client implementation  
@@ -375,11 +250,7 @@ You:
 
 **How to use Java code**:
 
-**Step 1: Clone it**
-```bash
-git clone https://github.com/infinispan/infinispan.git
-cd infinispan/client/hotrod-client
-```
+**Step 1: Ask the user for the path**
 
 **Step 2: Find the class (from ROADMAP "Java Reference" section)**
 
@@ -434,39 +305,10 @@ public void WriteVInt(List<byte> buffer, int value) {
 - ✅ When bytes don't match, Java shows you why
 
 **If your implementation doesn't work**:
-1. Compare your bytes with Java output (use Wireshark or hex dump)
-2. Find the difference (which byte doesn't match?)
-3. Check Java code for that specific encoding
-4. Fix your implementation to match Java logic
+1. Check Java code for that specific encoding
+2. Fix your implementation to match Java logic
 
 **DO NOT skip reading Java code. It's the reference implementation.**
-
-### 📗 docs/*.md Files
-
-**What**: Detailed specifications for each concept  
-**When**: Read AFTER checking Java reference  
-**How to use**:
-
-| File | Purpose | When to Read |
-|------|---------|--------------|
-| `00-introduction.md` | Protocol overview | Before Step 1 |
-| `01-wire-format-primitives.md` | vInt, vLong, strings | Step 1 (after checking Java) |
-| `02-protocol-headers.md` | Request/response headers | Step 2 (after checking Java) |
-| `03-authentication.md` | SASL mechanisms | Step 3 (after checking Java) |
-| `04-topology-awareness.md` | Cluster tracking | Step 4 (after checking Java) |
-| `05-consistent-hashing.md` | Smart routing | Step 5 (after checking Java) |
-| `06-ping-operation.md` | PING operation | Step 6 (after checking Java) |
-| `development-guidelines.md` | **CRITICAL** - TDD, CI/CD, process | Before Step 0 |
-| `troubleshooting.md` | Debugging guide | When stuck |
-
-**Reading Strategy**:
-1. **First**: Check Java reference implementation (see how it's done)
-2. **Then**: Skim the doc for overall structure
-3. Focus on "Wire Format" sections (exact byte layout)
-4. Note all conditional fields (if version >= X)
-5. Check "Common Mistakes" sections
-6. Follow links to Kaitai schema for authoritative spec
-7. **Always validate**: Your bytes must match Java output
 
 ### 🧪 test-vectors/*.json Files
 
@@ -562,26 +404,6 @@ cp templates/PROGRESS.md.template ../hotrod-client-csharp/PROGRESS.md
 ---
 
 ## Step-by-Step Workflow
-
-### Step 0: Foundation Setup
-
-**Goal**: Create separate project directory with structure, CI/CD, and tracking
-
-**⚠️ CRITICAL: Do this BEFORE writing any code**
-
-**⚠️ REMINDER: Have you presented your plan and received user approval? If not, STOP and do that first.**
-
-**Actions**:
-1. **Create new directory/repository** in a DIFFERENT location from hotrod-foundry:
-   ```bash
-   # Navigate OUT of hotrod-foundry first
-   cd ..  # or cd /path/to/parent-directory
-   
-   # Create new directory for implementation
-   mkdir hotrod-client-[language]
-   cd hotrod-client-[language]
-   git init
-   ```
 
 2. **Initialize project** (package.json, csproj, setup.py, CMakeLists.txt, etc.)
 3. **Copy progress template**:
