@@ -29,12 +29,77 @@ If you've already written code in hotrod-foundry/, **STOP** and move it to a sep
 When a user asks you to "implement a Hot Rod client in [language]", follow this sequence:
 
 1. **Read this file completely** (you're doing it now ✓)
-2. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
-3. **Read `ROADMAP.md`** to understand the implementation steps
-4. **Read `docs/development-guidelines.md`** for process requirements
-5. **Follow the roadmap step-by-step** (don't skip ahead)
-6. **Use test vectors for validation** (not live server initially)
-7. **Track progress in PROGRESS.md** (update after each step)
+2. **Read `ROADMAP.md`** to understand the implementation steps
+3. **Read `docs/development-guidelines.md`** for process requirements
+4. **Present your implementation plan to the user** - WAIT for approval before coding
+5. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
+6. **Follow the roadmap step-by-step** (don't skip ahead)
+7. **Use test vectors for validation** (not live server initially)
+8. **Track progress in PROGRESS.md** (update after each step)
+
+### ⚠️ Before Writing ANY Code
+
+**MANDATORY**: Present your plan and get user approval first.
+
+**What to include in your plan**:
+```markdown
+## Implementation Plan: Hot Rod Client for [Language]
+
+### Project Setup
+- Repository name: hotrod-client-[language]
+- Location: /path/to/hotrod-client-[language] (NOT in hotrod-foundry/)
+- Build system: [CMake/Gradle/npm/etc.]
+- Test framework: [Google Test/xUnit/pytest/etc.]
+
+### Implementation Approach
+- Following ROADMAP.md steps 0-8
+- Test-driven development with test vectors
+- CI/CD with GitHub Actions
+
+### Steps I'll Implement
+1. Step 0: Foundation Setup
+2. Step 1: Wire Format Primitives
+3. Step 2: Protocol Headers
+4. Step 3: Authentication (SCRAM-SHA-256)
+5. Step 4: Topology Awareness
+6. Step 5: Consistent Hashing
+7. Step 6: PING Operation
+8. [Optional] Step 7+: GET, PUT operations
+
+### Deliverables
+- Source code in hotrod-client-[language]/
+- Unit tests with 80%+ coverage
+- Integration tests against Infinispan 16.0
+- PROGRESS.md tracking
+- CI/CD pipeline
+- README with usage examples
+
+**Ready to proceed? [WAIT FOR USER APPROVAL]**
+```
+
+**DO NOT start coding until the user approves your plan.**
+
+### If User Modifies or Rejects Your Plan
+
+**User says "Only implement Steps 0-2 for now":**
+- ✅ Update your plan accordingly
+- ✅ Present revised plan for approval
+- ✅ Proceed with reduced scope
+
+**User says "Use pytest instead of unittest":**
+- ✅ Update test framework choice
+- ✅ Confirm change with user
+- ✅ Proceed
+
+**User says "Start with Step 1, skip Step 0":**
+- ⚠️ Explain that Step 0 (separate directory, CI/CD setup) is mandatory
+- ⚠️ Suggest minimal Step 0 if they want to move fast
+- ✅ Wait for confirmation
+
+**User says "Work in hotrod-foundry/ for now":**
+- ❌ Politely refuse - explain separation requirement
+- ❌ Emphasize this is non-negotiable for project structure
+- ✅ Offer to create directory in their preferred location
 
 ---
 
@@ -139,16 +204,18 @@ hotrod-client-[language]/       ← YOUR CODE GOES HERE
 User: "Implement a C# Hot Rod client"
 
 You: 
-  1. Check current directory with `pwd`
-  2. If in hotrod-foundry/, exit: `cd ..`
-  3. Create separate directory: `mkdir hotrod-client-csharp`
-  4. Enter new directory: `cd hotrod-client-csharp`
-  5. Verify location: `pwd` (should NOT contain "hotrod-foundry")
-  6. Initialize git: `git init`
-  7. Read ROADMAP.md from ../hotrod-foundry/
-  8. Start Step 0: Set up project structure, CI/CD
-  9. Move to Step 1: Implement vInt, vLong, strings
-  10. ... (continue step by step)
+  1. Read AGENTS.md, ROADMAP.md, development-guidelines.md
+  2. Present implementation plan to user
+  3. WAIT for user approval ← MANDATORY PAUSE
+  4. Check current directory with `pwd`
+  5. If in hotrod-foundry/, exit: `cd ..`
+  6. Create separate directory: `mkdir hotrod-client-csharp`
+  7. Enter new directory: `cd hotrod-client-csharp`
+  8. Verify location: `pwd` (should NOT contain "hotrod-foundry")
+  9. Initialize git: `git init`
+  10. Start Step 0: Set up project structure, CI/CD
+  11. Move to Step 1: Implement vInt, vLong, strings
+  12. ... (continue step by step)
 ```
 
 ### 📗 docs/*.md Files
@@ -276,6 +343,8 @@ cp templates/PROGRESS.md.template ../hotrod-client-csharp/PROGRESS.md
 **Goal**: Create separate project directory with structure, CI/CD, and tracking
 
 **⚠️ CRITICAL: Do this BEFORE writing any code**
+
+**⚠️ REMINDER: Have you presented your plan and received user approval? If not, STOP and do that first.**
 
 **Actions**:
 1. **Create new directory/repository** in a DIFFERENT location from hotrod-foundry:
