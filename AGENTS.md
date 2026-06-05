@@ -29,13 +29,15 @@ If you've already written code in hotrod-foundry/, **STOP** and move it to a sep
 When a user asks you to "implement a Hot Rod client in [language]", follow this sequence:
 
 1. **Read this file completely** (you're doing it now ✓)
-2. **Read `ROADMAP.md`** to understand the implementation steps
-3. **Read `docs/development-guidelines.md`** for process requirements
-4. **Present your implementation plan to the user** - WAIT for approval before coding
-5. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
-6. **Follow the roadmap step-by-step** (don't skip ahead)
-7. **Use test vectors for validation** (not live server initially)
-8. **Track progress in PROGRESS.md** (update after each step)
+2. **Clone Java reference implementation** - `git clone https://github.com/infinispan/infinispan.git`
+3. **Read `ROADMAP.md`** to understand the implementation steps
+4. **Read `docs/development-guidelines.md`** for process requirements
+5. **Present your implementation plan to the user** - WAIT for approval before coding
+6. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
+7. **Follow the roadmap step-by-step** (don't skip ahead)
+8. **Use Java code as reference** for each step (MANDATORY)
+9. **Use test vectors for validation** (not live server initially)
+10. **Track progress in PROGRESS.md** (update after each step)
 
 ### ⚠️ Before Writing ANY Code
 
@@ -156,22 +158,78 @@ Operations (Steps 6+):
 - Every operation benefits from auth, topology, and routing
 - User can deploy with just PING/GET/PUT and still have proper cluster support
 
-### 3. Test-Driven Development (MANDATORY)
+### 3. Use Java Implementation as Reference (MANDATORY)
+
+**CRITICAL**: The Java Hot Rod client is your reference implementation.
+
+**Every ROADMAP step includes "Java Reference" section** with exact class names and methods to study.
+
+**Workflow for each step**:
+```
+1. Read ROADMAP step documentation
+2. Find "Java Reference" section → class names listed
+3. Clone Infinispan source: https://github.com/infinispan/infinispan
+4. Navigate to Java class: infinispan/client/hotrod-client/src/main/java/...
+5. Study the implementation (encoding, wire format, logic)
+6. Read test vectors from hotrod-foundry
+7. Implement in your language based on Java logic
+8. Validate bytes match test vectors
+```
+
+**Example (Step 1 - Primitives)**:
+```
+ROADMAP says:
+  Java Reference:
+  - org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil
+    - writeVInt() / readVInt() (lines 70-112)
+
+You should:
+  1. Open: infinispan/client/hotrod-client/.../ByteBufUtil.java
+  2. Read writeVInt() implementation (see exact algorithm)
+  3. Read readVInt() implementation (see decoding)
+  4. Replicate the SAME logic in your language
+  5. Test against test vectors
+```
+
+**Why Java is authoritative**:
+- ✅ Most complete, production-tested implementation
+- ✅ Handles all edge cases
+- ✅ Shows exact wire format expectations
+- ✅ Infinispan server is also Java (same codebase)
+
+**When in doubt**: Check what Java does. If your bytes don't match test vectors, compare with Java output.
+
+**DO NOT**:
+- ❌ Guess the wire format
+- ❌ Implement from docs alone without checking Java
+- ❌ Skip reading the Java code
+
+**Where to find it**:
+```bash
+git clone https://github.com/infinispan/infinispan.git
+cd infinispan/client/hotrod-client/src/main/java/org/infinispan/client/hotrod
+# Now browse impl/ for operation implementations
+```
+
+### 4. Test-Driven Development (MANDATORY)
 
 **For EVERY step**, follow this workflow:
 
 ```
-1. Read test vectors         → test-vectors/step-XX-*/
-2. Write failing tests       → Load test vectors, assert expected bytes
-3. Implement minimal code    → Make tests pass
-4. Validate bytes match      → 100% match with test vectors
-5. Write integration tests   → Test against live server (optional)
-6. Update PROGRESS.md        → Mark step complete
+1. Read ROADMAP step docs       → Understand what to implement
+2. Read Java reference code     → See how Java does it (MANDATORY)
+3. Read test vectors            → test-vectors/step-XX-*/
+4. Write failing tests          → Load test vectors, assert expected bytes
+5. Implement based on Java      → Replicate Java logic in your language
+6. Validate bytes match         → 100% match with test vectors
+7. Compare with Java if stuck   → Run Java client, compare bytes
+8. Write integration tests      → Test against live server (optional)
+9. Update PROGRESS.md           → Mark step complete
 ```
 
 **NEVER skip to live server testing without byte-level validation first.**
 
-### 4. Separate Repository (CRITICAL - DO NOT SKIP)
+### 5. Separate Repository (CRITICAL - DO NOT SKIP)
 
 **STOP**: Before writing ANY code, create a separate directory/repository.
 
@@ -232,43 +290,127 @@ User: "Implement a C# Hot Rod client"
 
 You: 
   1. Read AGENTS.md, ROADMAP.md, development-guidelines.md
-  2. Present implementation plan to user
-  3. WAIT for user approval ← MANDATORY PAUSE
-  4. Check current directory with `pwd`
-  5. If in hotrod-foundry/, exit: `cd ..`
-  6. Create separate directory: `mkdir hotrod-client-csharp`
-  7. Enter new directory: `cd hotrod-client-csharp`
-  8. Verify location: `pwd` (should NOT contain "hotrod-foundry")
-  9. Initialize git: `git init`
-  10. Start Step 0: Set up project structure, CI/CD
-  11. Move to Step 1: Implement vInt, vLong, strings
-  12. ... (continue step by step)
+  2. Clone Java reference: `git clone https://github.com/infinispan/infinispan.git`
+  3. Present implementation plan to user
+  4. WAIT for user approval ← MANDATORY PAUSE
+  5. Check current directory with `pwd`
+  6. If in hotrod-foundry/, exit: `cd ..`
+  7. Create separate directory: `mkdir hotrod-client-csharp`
+  8. Enter new directory: `cd hotrod-client-csharp`
+  9. Verify location: `pwd` (should NOT contain "hotrod-foundry")
+  10. Initialize git: `git init`
+  11. Start Step 0: Set up project structure, CI/CD
+  12. Start Step 1: 
+      a. Read ROADMAP Step 1 docs
+      b. Find Java Reference: org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil
+      c. Study writeVInt/readVInt in Java source
+      d. Load test vectors
+      e. Implement in C# based on Java logic
+      f. Validate bytes match test vectors
+  13. ... (continue step by step, always checking Java first)
 ```
+
+### ☕ Java Reference Implementation
+
+**What**: The authoritative Hot Rod client implementation  
+**When**: ALWAYS - for every step before writing code  
+**Where**: https://github.com/infinispan/infinispan  
+**Path**: `client/hotrod-client/src/main/java/org/infinispan/client/hotrod/`
+
+**How to use Java code**:
+
+**Step 1: Clone it**
+```bash
+git clone https://github.com/infinispan/infinispan.git
+cd infinispan/client/hotrod-client
+```
+
+**Step 2: Find the class (from ROADMAP "Java Reference" section)**
+
+Example for Step 1 (Primitives):
+```
+ROADMAP says: org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil
+
+Navigate to:
+  infinispan/client/hotrod-client/src/main/java/
+    org/infinispan/client/hotrod/impl/transport/netty/ByteBufUtil.java
+```
+
+**Step 3: Study the implementation**
+```java
+// Example: writeVInt() method shows exact encoding algorithm
+public static void writeVInt(ByteBuf buf, int i) {
+    while ((i & ~0x7F) != 0) {
+        buf.writeByte((byte) ((i & 0x7F) | 0x80));
+        i >>>= 7;
+    }
+    buf.writeByte((byte) i);
+}
+```
+
+**Step 4: Replicate in your language**
+```csharp
+// C# equivalent based on Java logic
+public void WriteVInt(List<byte> buffer, int value) {
+    while ((value & ~0x7F) != 0) {
+        buffer.Add((byte)((value & 0x7F) | 0x80));
+        value >>>= 7;
+    }
+    buffer.Add((byte)value);
+}
+```
+
+**Step 5: Validate against test vectors**
+
+**Common Java classes to reference**:
+- **Primitives**: `ByteBufUtil` (vInt, vLong, strings)
+- **Headers**: `Codec40` (writeHeader, readHeader)
+- **Operations**: `PingOperation`, `GetOperation`, `PutOperation`
+- **Auth**: `AuthMechListOperation`, `AuthOperation`
+- **Topology**: `TopologyInfo`, `Codec30.readNewTopology()`
+- **Hashing**: `org.infinispan.client.hotrod.impl.consistenthash.*`
+
+**Why this matters**:
+- ✅ Java client is battle-tested in production
+- ✅ Handles all edge cases
+- ✅ Shows exact wire format (what server expects)
+- ✅ Infinispan server is Java (same encoding/decoding)
+- ✅ When bytes don't match, Java shows you why
+
+**If your implementation doesn't work**:
+1. Compare your bytes with Java output (use Wireshark or hex dump)
+2. Find the difference (which byte doesn't match?)
+3. Check Java code for that specific encoding
+4. Fix your implementation to match Java logic
+
+**DO NOT skip reading Java code. It's the reference implementation.**
 
 ### 📗 docs/*.md Files
 
 **What**: Detailed specifications for each concept  
-**When**: Read when starting each step  
+**When**: Read AFTER checking Java reference  
 **How to use**:
 
 | File | Purpose | When to Read |
 |------|---------|--------------|
 | `00-introduction.md` | Protocol overview | Before Step 1 |
-| `01-wire-format-primitives.md` | vInt, vLong, strings | Step 1 |
-| `02-protocol-headers.md` | Request/response headers | Step 2 |
-| `03-authentication.md` | SASL mechanisms | Step 3 |
-| `04-topology-awareness.md` | Cluster tracking | Step 4 |
-| `05-consistent-hashing.md` | Smart routing | Step 5 |
-| `06-ping-operation.md` | PING operation | Step 6 |
+| `01-wire-format-primitives.md` | vInt, vLong, strings | Step 1 (after checking Java) |
+| `02-protocol-headers.md` | Request/response headers | Step 2 (after checking Java) |
+| `03-authentication.md` | SASL mechanisms | Step 3 (after checking Java) |
+| `04-topology-awareness.md` | Cluster tracking | Step 4 (after checking Java) |
+| `05-consistent-hashing.md` | Smart routing | Step 5 (after checking Java) |
+| `06-ping-operation.md` | PING operation | Step 6 (after checking Java) |
 | `development-guidelines.md` | **CRITICAL** - TDD, CI/CD, process | Before Step 0 |
 | `troubleshooting.md` | Debugging guide | When stuck |
 
 **Reading Strategy**:
-1. Skim the doc for overall structure
-2. Focus on "Wire Format" sections (exact byte layout)
-3. Note all conditional fields (if version >= X)
-4. Check "Common Mistakes" sections
-5. Follow links to Kaitai schema for authoritative spec
+1. **First**: Check Java reference implementation (see how it's done)
+2. **Then**: Skim the doc for overall structure
+3. Focus on "Wire Format" sections (exact byte layout)
+4. Note all conditional fields (if version >= X)
+5. Check "Common Mistakes" sections
+6. Follow links to Kaitai schema for authoritative spec
+7. **Always validate**: Your bytes must match Java output
 
 ### 🧪 test-vectors/*.json Files
 
