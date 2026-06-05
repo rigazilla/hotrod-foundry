@@ -57,19 +57,19 @@ See `templates/PROGRESS.md.template` for the standard format.
    - ONLY THEN proceed to integration tests
 
 5. **Integration Tests**
-   - Test against live Infinispan server
-   - Auto-skip if server unavailable (for CI)
-   - Document required Docker setup
+   - Use **Testcontainers** library to start Infinispan server (MANDATORY)
+   - Test against live server instance
+   - Automatic cleanup after tests
 
 ### Test Coverage Requirements
 
 **Minimum per step:**
 - ✅ Unit tests for all test vectors
 - ✅ Unit tests for error cases
-- ✅ Integration tests (can auto-skip)
+- ✅ Integration tests using Testcontainers
 - ✅ All tests passing before marking step complete
 
-**Example (C#):**
+**Unit Test Example (C#):**
 ```csharp
 [Fact]
 public void TestVInt_FromTestVectors()
@@ -83,6 +83,107 @@ public void TestVInt_FromTestVectors()
     }
 }
 ```
+
+**Integration Test Example with Testcontainers (C#):**
+```csharp
+using Testcontainers.Infinispan;
+
+public class IntegrationTests : IAsyncLifetime
+{
+    private InfinispanContainer _container;
+    
+    public async Task InitializeAsync()
+    {
+        _container = new InfinispanBuilder()
+            .WithImage("infinispan/server:16.0")
+            .WithUsername("admin")
+            .WithPassword("password")
+            .Build();
+        
+        await _container.StartAsync();
+    }
+    
+    [Fact]
+    public void TestPingAgainstRealServer()
+    {
+        var client = new RemoteCache(
+            _container.GetHost(),
+            _container.GetMappedPublicPort(11222),
+            "admin",
+            "password"
+        );
+        
+        Assert.True(client.Ping());
+    }
+    
+    public async Task DisposeAsync()
+    {
+        await _container.DisposeAsync();
+    }
+}
+```
+
+**Integration Test Example with Testcontainers (Java):**
+```java
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
+
+@Testcontainers
+class IntegrationTest {
+    
+    @Container
+    static GenericContainer<?> infinispan = new GenericContainer<>(
+        DockerImageName.parse("infinispan/server:16.0"))
+        .withEnv("USER", "admin")
+        .withEnv("PASS", "password")
+        .withExposedPorts(11222);
+    
+    @Test
+    void testPing() {
+        String host = infinispan.getHost();
+        int port = infinispan.getMappedPort(11222);
+        
+        RemoteCache cache = new RemoteCache(host, port, "admin", "password");
+        assertTrue(cache.ping());
+    }
+}
+```
+
+**Integration Test Example with Testcontainers (Python):**
+```python
+from testcontainers.core.container import DockerContainer
+
+class TestIntegration:
+    
+    @pytest.fixture(scope="class")
+    def infinispan_container(self):
+        with DockerContainer("infinispan/server:16.0") \
+            .with_env("USER", "admin") \
+            .with_env("PASS", "password") \
+            .with_exposed_ports(11222) as container:
+            yield container
+    
+    def test_ping(self, infinispan_container):
+        host = infinispan_container.get_container_host_ip()
+        port = infinispan_container.get_exposed_port(11222)
+        
+        cache = RemoteCache(host, port, "admin", "password")
+        assert cache.ping()
+```
+
+**Why Testcontainers?**
+- ✅ Automatic server lifecycle (start/stop)
+- ✅ Isolated test environment
+- ✅ Works in CI without manual setup
+- ✅ Consistent across all languages
+- ✅ No manual Docker commands needed
+
+**Testcontainers libraries**:
+- C#: `Testcontainers` NuGet package
+- Java: `org.testcontainers:testcontainers`
+- Python: `testcontainers` PyPI package
+- Go: `github.com/testcontainers/testcontainers-go`
+- Node.js: `testcontainers` npm package
 
 ## CI/CD Requirements
 

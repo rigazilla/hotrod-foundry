@@ -90,6 +90,7 @@ For a step to be "complete":
 - [ ] Project structure (src/, include/, tests/, docs/)
 - [ ] Build system (CMake, Gradle, npm, etc.) - works on Linux + Windows
 - [ ] Test framework integration (Google Test, xUnit, pytest, etc.)
+- [ ] **Testcontainers library** integration (MANDATORY for integration tests)
 - [ ] CI/CD pipeline (GitHub Actions with Linux + Windows jobs)
 - [ ] PROGRESS.md (copy from `hotrod-foundry/templates/PROGRESS.md.template`)
 - [ ] Can connect to test server via TCP on both platforms
@@ -106,7 +107,8 @@ For a step to be "complete":
 ### Tests
 - Build system compiles successfully (Linux + Windows)
 - Test framework runs
-- Can establish TCP connection to Infinispan server (port 11222)
+- Testcontainers can start Infinispan container
+- Can establish TCP connection to Testcontainers-managed server (port 11222)
 
 ### Java Reference
 - Maven build structure
@@ -114,10 +116,24 @@ For a step to be "complete":
 
 ### Success Criteria
 ✅ CI pipeline runs and passes on both Linux and Windows  
-✅ Can connect to Infinispan test server  
+✅ Testcontainers library integrated and working
+✅ Can start/stop Infinispan server via Testcontainers
+✅ Can connect to Testcontainers-managed server  
 ✅ Test framework executes  
 ✅ PROGRESS.md tracking started
 ✅ Confirmed working in separate directory (not hotrod-foundry/)
+
+**Testcontainers setup example**:
+```bash
+# Dependencies (example for each language)
+# C#: Install-Package Testcontainers
+# Java: <dependency>org.testcontainers:testcontainers</dependency>
+# Python: pip install testcontainers
+# Go: go get github.com/testcontainers/testcontainers-go
+# Node: npm install testcontainers
+```
+
+See `hotrod-foundry/docs/development-guidelines.md` for complete integration test examples.
 
 ---
 

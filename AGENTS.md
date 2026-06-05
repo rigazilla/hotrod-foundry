@@ -248,15 +248,41 @@ cd infinispan/client/hotrod-client/src/main/java/org/infinispan/client/hotrod
 1. Read ROADMAP step docs       → Understand what to implement
 2. Read Java reference code     → See how Java does it (MANDATORY)
 3. Read test vectors            → test-vectors/step-XX-*/
-4. Write failing tests          → Load test vectors, assert expected bytes
+4. Write failing unit tests     → Load test vectors, assert expected bytes
 5. Implement based on Java      → Replicate Java logic in your language
 6. Validate bytes match         → 100% match with test vectors
 7. Compare with Java if stuck   → Run Java client, compare bytes
-8. Write integration tests      → Test against live server (optional)
+8. Write integration tests      → Use Testcontainers library (MANDATORY)
 9. Update PROGRESS.md           → Mark step complete
 ```
 
 **NEVER skip to live server testing without byte-level validation first.**
+
+**Integration Testing Requirements**:
+- ✅ Use **Testcontainers** library (available for all major languages)
+- ✅ Automatic Infinispan server lifecycle (start/stop)
+- ✅ No manual Docker commands in tests
+- ✅ Works in CI without manual setup
+
+**Example Testcontainers usage**:
+```csharp
+// C#: NuGet package 'Testcontainers'
+var container = new InfinispanBuilder()
+    .WithImage("infinispan/server:16.0")
+    .WithUsername("admin")
+    .WithPassword("password")
+    .Build();
+
+await container.StartAsync();
+var host = container.GetHost();
+var port = container.GetMappedPublicPort(11222);
+
+// Run tests...
+
+await container.DisposeAsync();  // Automatic cleanup
+```
+
+See `docs/development-guidelines.md` for complete Testcontainers examples in all languages.
 
 ### 5. Separate Repository (CRITICAL - DO NOT SKIP)
 
