@@ -88,6 +88,19 @@ public void TestVInt_FromTestVectors()
 
 **REQUIRED**: Every implementation must have automated CI/CD
 
+**MANDATORY**: CI must test on BOTH Linux and Windows
+
+### Platform Support
+
+**Required platforms:**
+- ✅ **Linux**: Fedora/RHEL (primary), Ubuntu/Debian (secondary)
+- ✅ **Windows**: Windows 10/11
+
+**Why both?**
+- Infinispan is used in enterprise environments (RHEL)
+- Developers use Windows workstations
+- Cross-platform validation catches platform-specific bugs
+
 ### GitHub Actions (Recommended)
 
 **Minimum workflow (`.github/workflows/build.yml`):**
@@ -98,8 +111,8 @@ name: Build and Test
 on: [push, pull_request]
 
 jobs:
-  test:
-    runs-on: ubuntu-latest
+  test-linux:
+    runs-on: ubuntu-latest  # Represents Fedora/RHEL/Debian family
     
     steps:
       - uses: actions/checkout@v3
@@ -125,15 +138,41 @@ jobs:
       
       - name: Test Coverage
         run: # Generate coverage report
+
+  test-windows:
+    runs-on: windows-latest
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup [Language]
+        # Language-specific setup (Windows paths, etc.)
+      
+      - name: Build
+        run: # Build command (Windows-compatible)
+      
+      - name: Unit Tests
+        run: # Run unit tests
+      
+      - name: Start Infinispan (Windows)
+        run: |
+          docker run -d -p 11222:11222 `
+            -e USER=admin -e PASS=password `
+            infinispan/server:16.0
+          Start-Sleep -Seconds 20
+      
+      - name: Integration Tests
+        run: # Run integration tests
 ```
 
 **CI Must:**
 - ✅ Run on every push and PR
-- ✅ Build the project
-- ✅ Run all unit tests
-- ✅ Run integration tests (with Dockerized Infinispan)
+- ✅ Test on BOTH Linux and Windows (separate jobs)
+- ✅ Build the project on both platforms
+- ✅ Run all unit tests on both platforms
+- ✅ Run integration tests (with Dockerized Infinispan) on both platforms
 - ✅ Report test coverage
-- ✅ Fail if any test fails
+- ✅ Fail if any test fails on either platform
 
 ## Documentation Requirements
 
@@ -196,14 +235,79 @@ Closes #12
 - [ ] Tagged in git
 - [ ] Published to package registry (NuGet/Maven/PyPI/etc.)
 
+## Cross-Platform Coding Standards
+
+**MANDATORY**: Code must work on both Linux and Windows
+
+### Platform-Specific Code
+
+**Avoid when possible**:
+```cpp
+// ❌ BAD: POSIX-only
+#include <unistd.h>
+sleep(1);
+
+// ✅ GOOD: Cross-platform
+#include <thread>
+#include <chrono>
+std::this_thread::sleep_for(std::chrono::seconds(1));
+```
+
+**File paths**:
+```python
+# ❌ BAD: Hard-coded separator
+path = "data/config/server.conf"
+
+# ✅ GOOD: Platform-independent
+import os
+path = os.path.join("data", "config", "server.conf")
+```
+
+**When platform-specific code is unavoidable**:
+```cpp
+#ifdef _WIN32
+    // Windows implementation
+#else
+    // Linux/Unix implementation
+#endif
+```
+
+### Cross-Platform Dependencies
+
+**Preferred libraries** (available on both platforms):
+- **Networking**: Standard library sockets, Boost.Asio
+- **Crypto**: OpenSSL (available on both)
+- **Testing**: Google Test, xUnit, pytest (all cross-platform)
+- **Build**: CMake, Gradle, npm (all cross-platform)
+
+**Avoid**:
+- Linux-only: `epoll`, `inotify`
+- Windows-only: Windows-specific APIs without POSIX fallback
+
+### Testing on Both Platforms
+
+**Local testing**:
+```bash
+# Linux (Fedora/RHEL)
+sudo dnf install cmake gcc g++ openssl-devel
+cmake . && make && ctest
+
+# Windows (PowerShell)
+choco install cmake visualstudio2022-workload-vctools openssl
+cmake . && cmake --build . && ctest
+```
+
+**CI/CD**: See CI/CD Requirements section - both platforms MUST pass.
+
 ## Code Quality Standards
 
 **Must-Have:**
-- ✅ No compiler warnings
+- ✅ No compiler warnings (on both Linux and Windows)
 - ✅ Linter passes (language-specific)
-- ✅ Test coverage ≥ 80%
+- ✅ Test coverage ≥ 80% (on both platforms)
 - ✅ All public APIs documented
 - ✅ No hardcoded credentials/secrets
+- ✅ Works on Linux (Fedora/RHEL) and Windows
 
 **Nice-to-Have:**
 - Static analysis tools (SonarQube, etc.)

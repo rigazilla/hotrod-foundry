@@ -50,6 +50,7 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 - Location: /path/to/hotrod-client-[language] (NOT in hotrod-foundry/)
 - Build system: [CMake/Gradle/npm/etc.]
 - Test framework: [Google Test/xUnit/pytest/etc.]
+- **Platform support**: Linux (Fedora/RHEL) + Windows (MANDATORY)
 
 ### Implementation Approach
 - Following ROADMAP.md steps 0-8
@@ -68,10 +69,11 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 
 ### Deliverables
 - Source code in hotrod-client-[language]/
+- Cross-platform support: Linux (Fedora/RHEL) + Windows
 - Unit tests with 80%+ coverage
 - Integration tests against Infinispan 16.0
 - PROGRESS.md tracking
-- CI/CD pipeline
+- CI/CD pipeline (test on both Linux and Windows)
 - README with usage examples
 
 **Ready to proceed? [WAIT FOR USER APPROVAL]**
@@ -105,7 +107,32 @@ When a user asks you to "implement a Hot Rod client in [language]", follow this 
 
 ## Core Principles
 
-### 1. Infrastructure Before Operations
+### 1. Cross-Platform Support (MANDATORY)
+
+**REQUIRED**: All implementations must support both Linux and Windows.
+
+**Linux**:
+- Primary targets: Fedora, RHEL (Red Hat Enterprise Linux)
+- Should also work on Ubuntu/Debian
+
+**Windows**:
+- Windows 10/11
+- Visual Studio compatibility (for C/C++)
+
+**Requirements**:
+- ✅ CI/CD must test on BOTH platforms
+- ✅ No platform-specific code without fallbacks
+- ✅ Use cross-platform libraries (e.g., OpenSSL available on both)
+- ✅ Build system works on both (CMake, Gradle, npm, etc.)
+- ✅ Documentation includes setup for both platforms
+
+**Common pitfalls**:
+- ❌ Using POSIX-only APIs without Windows alternatives
+- ❌ Hard-coded path separators (`/` vs `\`)
+- ❌ Linux-only dependencies
+- ❌ Testing only on one platform
+
+### 2. Infrastructure Before Operations
 
 **CRITICAL**: Steps 1-5 build the foundation. Steps 6+ add operations.
 
@@ -129,7 +156,7 @@ Operations (Steps 6+):
 - Every operation benefits from auth, topology, and routing
 - User can deploy with just PING/GET/PUT and still have proper cluster support
 
-### 2. Test-Driven Development (MANDATORY)
+### 3. Test-Driven Development (MANDATORY)
 
 **For EVERY step**, follow this workflow:
 
@@ -144,7 +171,7 @@ Operations (Steps 6+):
 
 **NEVER skip to live server testing without byte-level validation first.**
 
-### 3. Separate Repository (CRITICAL - DO NOT SKIP)
+### 4. Separate Repository (CRITICAL - DO NOT SKIP)
 
 **STOP**: Before writing ANY code, create a separate directory/repository.
 
