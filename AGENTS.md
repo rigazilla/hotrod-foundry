@@ -6,16 +6,35 @@
 
 ---
 
+## ⚠️ CRITICAL: Before You Start
+
+**DO NOT write code in the `hotrod-foundry/` directory.**
+
+This repository contains **documentation only**. Your implementation must be in a **separate directory**.
+
+**First action**: Create a new directory OUTSIDE of hotrod-foundry:
+```bash
+cd ..  # Exit hotrod-foundry
+mkdir hotrod-client-[language]
+cd hotrod-client-[language]
+# NOW you can start coding
+```
+
+If you've already written code in hotrod-foundry/, **STOP** and move it to a separate directory before continuing.
+
+---
+
 ## Quick Start
 
 When a user asks you to "implement a Hot Rod client in [language]", follow this sequence:
 
 1. **Read this file completely** (you're doing it now ✓)
-2. **Read `ROADMAP.md`** to understand the implementation steps
-3. **Read `docs/development-guidelines.md`** for process requirements
-4. **Follow the roadmap step-by-step** (don't skip ahead)
-5. **Use test vectors for validation** (not live server initially)
-6. **Track progress in PROGRESS.md** (update after each step)
+2. **Create a separate repository FIRST** - DO NOT develop in hotrod-foundry/
+3. **Read `ROADMAP.md`** to understand the implementation steps
+4. **Read `docs/development-guidelines.md`** for process requirements
+5. **Follow the roadmap step-by-step** (don't skip ahead)
+6. **Use test vectors for validation** (not live server initially)
+7. **Track progress in PROGRESS.md** (update after each step)
 
 ---
 
@@ -60,20 +79,46 @@ Operations (Steps 6+):
 
 **NEVER skip to live server testing without byte-level validation first.**
 
-### 3. Separate Repository
+### 3. Separate Repository (CRITICAL - DO NOT SKIP)
 
-**DO NOT** put implementation code in `hotrod-foundry/`.
+**STOP**: Before writing ANY code, create a separate directory/repository.
 
-This repository = language-agnostic docs + test vectors only.
+**NEVER EVER** put implementation code in `hotrod-foundry/`.
 
-Your implementation = separate repository:
+**Rule**: `hotrod-foundry/` = docs only. Your code = separate directory/repo.
+
+**FIRST STEP - Create separate directory:**
+
+```bash
+# If user has hotrod-foundry cloned:
+cd /path/to/parent-directory
+mkdir hotrod-client-[language]
+cd hotrod-client-[language]
+git init
+
+# Directory structure:
+hotrod-foundry/                 ← DOCS ONLY (read-only reference)
+├── docs/
+├── test-vectors/
+└── AGENTS.md                   ← You are here
+
+hotrod-client-[language]/       ← YOUR CODE GOES HERE
+├── src/                        ← Implementation
+├── tests/                      ← Tests
+├── PROGRESS.md                 ← Progress tracker
+└── .github/workflows/          ← CI/CD
 ```
-hotrod-client-[language]/       ← NEW REPO
-├── src/                        ← Your code
-├── tests/                      ← Your tests
-├── PROGRESS.md                 ← Your progress tracker
-└── .github/workflows/          ← Your CI/CD
-```
+
+**If you write code in hotrod-foundry/, STOP immediately and:**
+1. Create the separate directory
+2. Move all implementation files there
+3. Continue development in the new location
+
+**Why separate?**
+- hotrod-foundry updates benefit all languages
+- Each client has its own release cycle
+- Clean separation of docs vs code
+- Multiple language implementations can coexist
 
 ---
 
@@ -89,15 +134,21 @@ hotrod-client-[language]/       ← NEW REPO
 3. Use "Success Criteria" as checklist
 4. Use "Java Reference" to find reference implementation
 
-**Example**:
+**Example workflow**:
 ```markdown
 User: "Implement a C# Hot Rod client"
+
 You: 
-  1. Read ROADMAP.md
-  2. Create new repo: hotrod-client-csharp
-  3. Start Step 0: Set up project structure, CI/CD
-  4. Move to Step 1: Implement vInt, vLong, strings
-  5. ... (continue step by step)
+  1. Check current directory with `pwd`
+  2. If in hotrod-foundry/, exit: `cd ..`
+  3. Create separate directory: `mkdir hotrod-client-csharp`
+  4. Enter new directory: `cd hotrod-client-csharp`
+  5. Verify location: `pwd` (should NOT contain "hotrod-foundry")
+  6. Initialize git: `git init`
+  7. Read ROADMAP.md from ../hotrod-foundry/
+  8. Start Step 0: Set up project structure, CI/CD
+  9. Move to Step 1: Implement vInt, vLong, strings
+  10. ... (continue step by step)
 ```
 
 ### 📗 docs/*.md Files
@@ -222,22 +273,44 @@ cp templates/PROGRESS.md.template ../hotrod-client-csharp/PROGRESS.md
 
 ### Step 0: Foundation Setup
 
-**Goal**: Create project structure, CI/CD, and tracking
+**Goal**: Create separate project directory with structure, CI/CD, and tracking
+
+**⚠️ CRITICAL: Do this BEFORE writing any code**
 
 **Actions**:
-1. Create new repository: `hotrod-client-[language]`
-2. Initialize project (package.json, csproj, setup.py, etc.)
-3. Copy `templates/PROGRESS.md.template` to `PROGRESS.md`
-4. Create `.github/workflows/build.yml` (see `development-guidelines.md`)
-5. Create basic README.md
-6. Set up test framework
-7. Commit initial structure
+1. **Create new directory/repository** in a DIFFERENT location from hotrod-foundry:
+   ```bash
+   # Navigate OUT of hotrod-foundry first
+   cd ..  # or cd /path/to/parent-directory
+   
+   # Create new directory for implementation
+   mkdir hotrod-client-[language]
+   cd hotrod-client-[language]
+   git init
+   ```
+
+2. **Initialize project** (package.json, csproj, setup.py, CMakeLists.txt, etc.)
+3. **Copy progress template**:
+   ```bash
+   cp ../hotrod-foundry/templates/PROGRESS.md.template ./PROGRESS.md
+   ```
+4. **Create `.github/workflows/build.yml`** (see `development-guidelines.md`)
+5. **Create basic README.md**
+6. **Set up test framework**
+7. **Commit initial structure**
 
 **Deliverables**:
-- [ ] New repo created and initialized
+- [ ] New directory/repo created OUTSIDE of hotrod-foundry
+- [ ] Confirmed you are NOT in hotrod-foundry/ directory
 - [ ] CI/CD pipeline running (even if tests don't exist yet)
 - [ ] PROGRESS.md tracking started
 - [ ] Test framework configured
+
+**Verification**:
+```bash
+pwd  # Should show: /path/to/hotrod-client-[language]
+     # Should NOT show: /path/to/hotrod-foundry
+```
 
 ### Step 1: Wire Format Primitives
 
