@@ -8,6 +8,8 @@
 
 ## ⚠️ CRITICAL: Before You Start
 
+### 1. DO NOT Write Code in hotrod-foundry/
+
 **DO NOT write code in the `hotrod-foundry/` directory.**
 
 This repository contains **documentation only**. Your implementation must be in a **separate directory**.
@@ -21,6 +23,33 @@ cd hotrod-client-[language]
 ```
 
 If you've already written code in hotrod-foundry/, **STOP** and move it to a separate directory before continuing.
+
+### 2. DO NOT Search for Existing Implementations
+
+**DO NOT look for existing Hot Rod client implementations in your target language.**
+
+**Prohibited actions**:
+- ❌ Searching GitHub for "[language] Hot Rod client"
+- ❌ Looking for existing npm/NuGet/PyPI packages
+- ❌ Checking if someone already implemented it
+- ❌ Copying code from other implementations
+
+**Why?**
+- You are implementing FROM SCRATCH
+- Your references are: (1) Java implementation, (2) hotrod-foundry docs, (3) test vectors
+- Existing clients may be incomplete, outdated, or wrong
+- Your job is to create a NEW implementation, not find an old one
+
+**What to do instead**:
+1. ✅ Study the **Java** implementation (reference)
+2. ✅ Read hotrod-foundry documentation
+3. ✅ Use test vectors for validation
+4. ✅ Implement step-by-step from ROADMAP
+5. ✅ Write code yourself based on Java logic
+
+**If you catch yourself searching for existing code, STOP immediately.**
+
+Your task is **implementation**, not **discovery**.
 
 ---
 
@@ -291,23 +320,24 @@ User: "Implement a C# Hot Rod client"
 You: 
   1. Read AGENTS.md, ROADMAP.md, development-guidelines.md
   2. Clone Java reference: `git clone https://github.com/infinispan/infinispan.git`
-  3. Present implementation plan to user
-  4. WAIT for user approval ← MANDATORY PAUSE
-  5. Check current directory with `pwd`
-  6. If in hotrod-foundry/, exit: `cd ..`
-  7. Create separate directory: `mkdir hotrod-client-csharp`
-  8. Enter new directory: `cd hotrod-client-csharp`
-  9. Verify location: `pwd` (should NOT contain "hotrod-foundry")
-  10. Initialize git: `git init`
-  11. Start Step 0: Set up project structure, CI/CD
-  12. Start Step 1: 
+  3. DO NOT search for existing C# Hot Rod clients ← PROHIBITED
+  4. Present implementation plan to user
+  5. WAIT for user approval ← MANDATORY PAUSE
+  6. Check current directory with `pwd`
+  7. If in hotrod-foundry/, exit: `cd ..`
+  8. Create separate directory: `mkdir hotrod-client-csharp`
+  9. Enter new directory: `cd hotrod-client-csharp`
+  10. Verify location: `pwd` (should NOT contain "hotrod-foundry")
+  11. Initialize git: `git init`
+  12. Start Step 0: Set up project structure, CI/CD
+  13. Start Step 1: 
       a. Read ROADMAP Step 1 docs
       b. Find Java Reference: org.infinispan.client.hotrod.impl.transport.netty.ByteBufUtil
       c. Study writeVInt/readVInt in Java source
       d. Load test vectors
-      e. Implement in C# based on Java logic
+      e. Implement in C# based on Java logic (NOT from existing C# code)
       f. Validate bytes match test vectors
-  13. ... (continue step by step, always checking Java first)
+  14. ... (continue step by step, always checking Java first, NEVER searching for existing implementations)
 ```
 
 ### ☕ Java Reference Implementation
@@ -805,7 +835,50 @@ If bytes don't match:
 ✓ 5. THEN test against live server
 ```
 
-### ❌ Pitfall 3: Skipping Steps
+### ❌ Pitfall 3: Searching for Existing Implementations
+
+**Symptom**: Spending time searching GitHub, npm, NuGet, PyPI for existing clients
+
+**Cause**: Thinking "maybe someone already did this in [language]"
+
+**Why this is wrong**:
+- ❌ Existing implementations may be incomplete (missing Steps 3-5)
+- ❌ May be for old protocol versions (3.x instead of 4.0)
+- ❌ May have bugs or wrong wire formats
+- ❌ You won't learn the protocol if you just copy code
+- ❌ User asked YOU to implement, not to find someone else's work
+
+**Fix**: 
+1. **STOP searching** for existing code
+2. Your references are: (1) Java, (2) hotrod-foundry, (3) test vectors
+3. Implement from scratch following ROADMAP
+4. Study Java implementation, not random GitHub code
+
+**Correct mindset**: "I'm implementing FROM SCRATCH using Java as reference"
+
+### ❌ Pitfall 4: Not Studying Java Reference
+
+**Symptom**: Wire format doesn't match, server returns errors, bytes don't validate
+
+**Cause**: Tried to implement from docs alone without checking Java code
+
+**Fix**:
+1. Find Java class from ROADMAP "Java Reference" section
+2. Read the actual Java implementation
+3. See exact algorithm, edge case handling
+4. Replicate logic in your language
+5. Compare your bytes with Java output
+
+**Example**: 
+```
+Problem: vInt encoding doesn't match test vectors
+Wrong: "I'll figure it out from the docs"
+Right: "Let me check ByteBufUtil.writeVInt() in Java"
+```
+
+**Prevention**: ALWAYS check Java first before implementing.
+
+### ❌ Pitfall 5: Skipping Steps
 
 **Symptom**: GET/PUT work but client can't handle cluster failover, poor performance
 
@@ -818,7 +891,7 @@ If bytes don't match:
 - Step 4 (Topology): Required for failover in production
 - Step 5 (Hashing): Required for performance at scale
 
-### ❌ Pitfall 4: Not Tracking Progress
+### ❌ Pitfall 6: Not Tracking Progress
 
 **Symptom**: Incomplete implementation, hard to resume work, no clear status
 
@@ -826,7 +899,7 @@ If bytes don't match:
 
 **Fix**: Update PROGRESS.md after every step. Include in commits.
 
-### ❌ Pitfall 5: No CI/CD
+### ❌ Pitfall 7: No CI/CD
 
 **Symptom**: Regressions, broken builds, manual testing burden
 
@@ -834,7 +907,7 @@ If bytes don't match:
 
 **Fix**: Set up GitHub Actions (or equivalent) at Step 0. See `development-guidelines.md`.
 
-### ❌ Pitfall 6: Wrong Protocol Version
+### ❌ Pitfall 8: Wrong Protocol Version
 
 **Symptom**: Authentication failures, unexpected errors
 
