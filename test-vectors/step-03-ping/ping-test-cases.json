@@ -1,42 +1,114 @@
 {
-  "description": "PING operation test cases - request/response patterns",
+  "description": "PING operation test cases - COMPLETE Protocol 4.0 headers",
+  "warning": "These test cases include ALL 11 Protocol 4.0 header fields. Missing any causes server timeout!",
   "note": "PING has no payload beyond headers",
+  "reference": [
+    "hotrod40.ksy lines 315-354 (request_header)",
+    "org.infinispan.client.hotrod.impl.operations.PingOperation"
+  ],
   "test_cases": [
     {
-      "description": "Basic PING to default cache",
+      "description": "Basic PING to default cache - complete Protocol 4.0",
       "request": {
         "messageId": 1,
-        "cacheName": ""
+        "cacheName": "",
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "request_bytes": [160, 1, 40, 23, 0, 0, 1, 0],
-      "request_hex": "A0 01 28 17 00 00 01 00",
+      "request_bytes": [160, 1, 40, 23, 0, 0, 1, 0, 0, 0, 0],
+      "request_hex": "A0 01 28 17 00 00 01 00 00 00 00",
+      "request_breakdown": [
+        {"field": "magic", "bytes": "A0"},
+        {"field": "messageId", "bytes": "01"},
+        {"field": "version", "bytes": "28", "note": "Protocol 4.0"},
+        {"field": "opcode", "bytes": "17", "note": "PING_REQUEST"},
+        {"field": "cacheName", "bytes": "00", "note": "Empty"},
+        {"field": "flags", "bytes": "00"},
+        {"field": "clientIntelligence", "bytes": "01", "note": "BASIC"},
+        {"field": "topologyId", "bytes": "00"},
+        {"field": "keyMediaType", "bytes": "00", "note": "Required for v4.0"},
+        {"field": "valueMediaType", "bytes": "00", "note": "Required for v4.0"},
+        {"field": "otherParamCount", "bytes": "00", "note": "Required for v4.0"}
+      ],
       "response_bytes": [161, 1, 24, 0, 0],
       "response_hex": "A1 01 18 00 00",
+      "response_breakdown": [
+        {"field": "magic", "bytes": "A1", "note": "Response magic"},
+        {"field": "messageId", "bytes": "01"},
+        {"field": "opcode", "bytes": "18", "note": "PING_RESPONSE"},
+        {"field": "status", "bytes": "00", "note": "NO_ERROR"},
+        {"field": "topologyChangeMarker", "bytes": "00", "note": "No change"}
+      ],
       "expected_success": true
     },
     {
-      "description": "PING with named cache",
+      "description": "PING with named cache - complete Protocol 4.0",
       "request": {
         "messageId": 2,
-        "cacheName": "myCache"
+        "cacheName": "myCache",
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "request_bytes": [160, 2, 40, 23, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0],
-      "request_hex": "A0 02 28 17 07 6D 79 43 61 63 68 65 00 01 00",
+      "request_bytes": [160, 2, 40, 23, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0, 0, 0, 0],
+      "request_hex": "A0 02 28 17 07 6D 79 43 61 63 68 65 00 01 00 00 00 00",
       "response_bytes": [161, 2, 24, 0, 0],
       "response_hex": "A1 02 18 00 00",
-      "expected_success": true
+      "expected_success": true,
+      "note": "Cache name 'myCache' (7 bytes) + complete Protocol 4.0 fields"
     },
     {
-      "description": "PING with large message ID",
+      "description": "PING with large message ID - complete Protocol 4.0",
       "request": {
         "messageId": 1000000,
-        "cacheName": ""
+        "cacheName": "",
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "request_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0],
-      "request_hex": "A0 C0 84 3D 28 17 00 00 01 00",
+      "request_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0, 0, 0, 0],
+      "request_hex": "A0 C0 84 3D 28 17 00 00 01 00 00 00 00",
       "response_bytes": [161, 192, 132, 61, 24, 0, 0],
       "response_hex": "A1 C0 84 3D 18 00 00",
-      "expected_success": true
+      "expected_success": true,
+      "note": "Message ID 1000000 encoded as vLong [C0 84 3D]"
+    },
+    {
+      "description": "PING with topology awareness - complete Protocol 4.0",
+      "request": {
+        "messageId": 10,
+        "cacheName": "",
+        "clientIntelligence": 2,
+        "topologyId": 5,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
+      },
+      "request_bytes": [160, 10, 40, 23, 0, 0, 2, 5, 0, 0, 0],
+      "request_hex": "A0 0A 28 17 00 00 02 05 00 00 00",
+      "response_bytes": [161, 10, 24, 0, 0],
+      "response_hex": "A1 0A 18 00 00",
+      "expected_success": true,
+      "note": "TOPOLOGY_AWARE client (0x02), topology ID 5"
+    },
+    {
+      "description": "PING with hash awareness - complete Protocol 4.0",
+      "request": {
+        "messageId": 15,
+        "cacheName": "",
+        "clientIntelligence": 3,
+        "topologyId": 10,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
+      },
+      "request_bytes": [160, 15, 40, 23, 0, 0, 3, 10, 0, 0, 0],
+      "request_hex": "A0 0F 28 17 00 00 03 0A 00 00 00",
+      "response_bytes": [161, 15, 24, 0, 0],
+      "response_hex": "A1 0F 18 00 00",
+      "expected_success": true,
+      "note": "HASH_DISTRIBUTION_AWARE client (0x03), topology ID 10"
     }
   ],
   "operation_codes": {
@@ -44,9 +116,10 @@
     "PING_RESPONSE": 24
   },
   "notes": [
-    "PING request has only header, no payload",
-    "PING response has only header, no payload",
-    "Status 0x00 = success, anything else = error",
-    "Response message ID must match request message ID"
+    "PING request has header + 3 required Protocol 4.0 fields (keyMediaType, valueMediaType, otherParamCount)",
+    "PING response has only header (5 bytes total)",
+    "Status 0x00 = success (NO_ERROR)",
+    "Response message ID must match request message ID",
+    "Missing the 3 Protocol 4.0 fields causes server timeout"
   ]
 }

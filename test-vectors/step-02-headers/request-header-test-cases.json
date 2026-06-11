@@ -1,11 +1,20 @@
 {
-  "description": "Hot Rod request header test cases",
-  "encoding": "Request header format: magic(0xA0) + messageId(vLong) + version + opcode + cacheName(string) + flags(vInt) + clientIntelligence + topologyId(vInt)",
-  "reference": "org.infinispan.client.hotrod.impl.protocol.Codec30.writeHeader()",
-  "protocol_version": "4.0 (0x28)",
+  "description": "Hot Rod Protocol 4.0 COMPLETE request header test cases",
+  "warning": "CRITICAL: Protocol 4.0 requires 11 fields (not 8). Missing conditional fields causes server timeout!",
+  "encoding": "Request header format (COMPLETE Protocol 4.0): magic(0xA0) + messageId(vLong) + version(0x28) + opcode + cacheName(string) + flags(vInt) + clientIntelligence + topologyId(vInt) + keyMediaType + valueMediaType + otherParamCount(vInt)",
+  "reference": [
+    "org.infinispan.client.hotrod.impl.protocol.Codec40.writeHeader()",
+    "hotrod40.ksy lines 315-354 (request_header)"
+  ],
+  "protocol_version": "4.0 (0x28 = 40 decimal)",
+  "conditional_fields": {
+    "key_media_type": "Required if version >= 28 (0x1C). Version 40 (0x28) triggers this.",
+    "value_media_type": "Required if version >= 28 (0x1C). Version 40 (0x28) triggers this.",
+    "other_param_count": "Required if version >= 40. Usually 0 for basic operations."
+  },
   "test_cases": [
     {
-      "description": "PING request - minimal header",
+      "description": "PING request - complete Protocol 4.0 header",
       "header": {
         "magic": 160,
         "messageId": 1,
@@ -14,14 +23,30 @@
         "cacheName": "",
         "flags": 0,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 01 28 17 00 00 01 00",
-      "expected_bytes": [160, 1, 40, 23, 0, 0, 1, 0],
-      "note": "PING opcode=0x17, empty cache name, no flags"
+      "expected_hex": "A0 01 28 17 00 00 01 00 00 00 00",
+      "expected_bytes": [160, 1, 40, 23, 0, 0, 1, 0, 0, 0, 0],
+      "byte_breakdown": [
+        {"field": "magic", "bytes": "A0", "value": 160, "note": "Request magic byte"},
+        {"field": "messageId", "bytes": "01", "value": 1, "note": "vLong encoded"},
+        {"field": "version", "bytes": "28", "value": 40, "note": "Protocol 4.0"},
+        {"field": "opcode", "bytes": "17", "value": 23, "note": "PING_REQUEST"},
+        {"field": "cacheName", "bytes": "00", "value": "", "note": "Empty string (length 0)"},
+        {"field": "flags", "bytes": "00", "value": 0, "note": "vInt encoded"},
+        {"field": "clientIntelligence", "bytes": "01", "value": 1, "note": "BASIC"},
+        {"field": "topologyId", "bytes": "00", "value": 0, "note": "vInt encoded"},
+        {"field": "keyMediaType", "bytes": "00", "value": 0, "note": "None (required for v4.0)"},
+        {"field": "valueMediaType", "bytes": "00", "value": 0, "note": "None (required for v4.0)"},
+        {"field": "otherParamCount", "bytes": "00", "value": 0, "note": "vInt 0 (required for v4.0)"}
+      ],
+      "note": "COMPLETE Protocol 4.0 header with all 11 fields"
     },
     {
-      "description": "GET request with named cache",
+      "description": "GET request with named cache - complete",
       "header": {
         "magic": 160,
         "messageId": 2,
@@ -30,14 +55,17 @@
         "cacheName": "myCache",
         "flags": 0,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 02 28 03 07 6D 79 43 61 63 68 65 00 01 00",
-      "expected_bytes": [160, 2, 40, 3, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0],
-      "note": "GET opcode=0x03, cache name 'myCache' (7 bytes)"
+      "expected_hex": "A0 02 28 03 07 6D 79 43 61 63 68 65 00 01 00 00 00 00",
+      "expected_bytes": [160, 2, 40, 3, 7, 109, 121, 67, 97, 99, 104, 101, 0, 1, 0, 0, 0, 0],
+      "note": "GET opcode=0x03, cache 'myCache', complete Protocol 4.0"
     },
     {
-      "description": "PUT request with flags",
+      "description": "PUT request with flags - complete",
       "header": {
         "magic": 160,
         "messageId": 3,
@@ -46,14 +74,17 @@
         "cacheName": "testCache",
         "flags": 1,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 03 28 01 09 74 65 73 74 43 61 63 68 65 01 01 00",
-      "expected_bytes": [160, 3, 40, 1, 9, 116, 101, 115, 116, 67, 97, 99, 104, 101, 1, 1, 0],
-      "note": "PUT opcode=0x01, cache 'testCache', flags=0x01 (FORCE_RETURN_VALUE)"
+      "expected_hex": "A0 03 28 01 09 74 65 73 74 43 61 63 68 65 01 01 00 00 00 00",
+      "expected_bytes": [160, 3, 40, 1, 9, 116, 101, 115, 116, 67, 97, 99, 104, 101, 1, 1, 0, 0, 0, 0],
+      "note": "PUT with FORCE_RETURN_VALUE flag, complete Protocol 4.0"
     },
     {
-      "description": "Large message ID",
+      "description": "Large message ID - complete",
       "header": {
         "magic": 160,
         "messageId": 1000000,
@@ -62,14 +93,17 @@
         "cacheName": "",
         "flags": 0,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 C0 84 3D 28 17 00 00 01 00",
-      "expected_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0],
-      "note": "Message ID 1000000 encodes as vLong [0xC0, 0x84, 0x3D]"
+      "expected_hex": "A0 C0 84 3D 28 17 00 00 01 00 00 00 00",
+      "expected_bytes": [160, 192, 132, 61, 40, 23, 0, 0, 1, 0, 0, 0, 0],
+      "note": "Message ID 1000000 as vLong [0xC0, 0x84, 0x3D], complete Protocol 4.0"
     },
     {
-      "description": "REMOVE request",
+      "description": "REMOVE request - complete",
       "header": {
         "magic": 160,
         "messageId": 5,
@@ -78,30 +112,17 @@
         "cacheName": "",
         "flags": 0,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 05 28 0B 00 00 01 00",
-      "expected_bytes": [160, 5, 40, 11, 0, 0, 1, 0],
-      "note": "REMOVE opcode=0x0B"
+      "expected_hex": "A0 05 28 0B 00 00 01 00 00 00 00",
+      "expected_bytes": [160, 5, 40, 11, 0, 0, 1, 0, 0, 0, 0],
+      "note": "REMOVE opcode=0x0B, complete Protocol 4.0"
     },
     {
-      "description": "STATS request",
-      "header": {
-        "magic": 160,
-        "messageId": 10,
-        "version": 40,
-        "opcode": 21,
-        "cacheName": "",
-        "flags": 0,
-        "clientIntelligence": 1,
-        "topologyId": 0
-      },
-      "expected_hex": "A0 0A 28 15 00 00 01 00",
-      "expected_bytes": [160, 10, 40, 21, 0, 0, 1, 0],
-      "note": "STATS opcode=0x15"
-    },
-    {
-      "description": "Request with topology ID",
+      "description": "Topology-aware client - complete",
       "header": {
         "magic": 160,
         "messageId": 100,
@@ -109,70 +130,81 @@
         "opcode": 3,
         "cacheName": "",
         "flags": 0,
-        "clientIntelligence": 3,
-        "topologyId": 5
+        "clientIntelligence": 2,
+        "topologyId": 5,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 64 28 03 00 00 03 05",
-      "expected_bytes": [160, 100, 40, 3, 0, 0, 3, 5],
-      "note": "Client intelligence 3 (HASH_DISTRIBUTION_AWARE), topology ID 5"
+      "expected_hex": "A0 64 28 03 00 00 02 05 00 00 00",
+      "expected_bytes": [160, 100, 40, 3, 0, 0, 2, 5, 0, 0, 0],
+      "note": "TOPOLOGY_AWARE (0x02), topology ID 5, complete Protocol 4.0"
     },
     {
-      "description": "GET_WITH_METADATA request",
+      "description": "Hash-aware client - complete",
       "header": {
         "magic": 160,
-        "messageId": 7,
+        "messageId": 101,
         "version": 40,
-        "opcode": 27,
-        "cacheName": "dataCache",
-        "flags": 0,
-        "clientIntelligence": 1,
-        "topologyId": 0
-      },
-      "expected_hex": "A0 07 28 1B 09 64 61 74 61 43 61 63 68 65 00 01 00",
-      "expected_bytes": [160, 7, 40, 27, 9, 100, 97, 116, 97, 67, 97, 99, 104, 101, 0, 1, 0],
-      "note": "GET_WITH_METADATA opcode=0x1B, cache 'dataCache'"
-    },
-    {
-      "description": "Multiple flags set",
-      "header": {
-        "magic": 160,
-        "messageId": 8,
-        "version": 40,
-        "opcode": 1,
+        "opcode": 3,
         "cacheName": "",
-        "flags": 7,
-        "clientIntelligence": 1,
-        "topologyId": 0
+        "flags": 0,
+        "clientIntelligence": 3,
+        "topologyId": 10,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 08 28 01 00 07 01 00",
-      "expected_bytes": [160, 8, 40, 1, 0, 7, 1, 0],
-      "note": "Flags = 0x07 (FORCE_RETURN_VALUE | DEFAULT_LIFESPAN | DEFAULT_MAXIDLE)"
+      "expected_hex": "A0 65 28 03 00 00 03 0A 00 00 00",
+      "expected_bytes": [160, 101, 40, 3, 0, 0, 3, 10, 0, 0, 0],
+      "note": "HASH_DISTRIBUTION_AWARE (0x03), topology ID 10, complete Protocol 4.0"
     },
     {
-      "description": "Protocol 4.1",
+      "description": "AUTH_MECH_LIST request - complete",
       "header": {
         "magic": 160,
         "messageId": 1,
-        "version": 41,
-        "opcode": 23,
+        "version": 40,
+        "opcode": 33,
         "cacheName": "",
         "flags": 0,
         "clientIntelligence": 1,
-        "topologyId": 0
+        "topologyId": 0,
+        "keyMediaType": 0,
+        "valueMediaType": 0,
+        "otherParamCount": 0
       },
-      "expected_hex": "A0 01 29 17 00 00 01 00",
-      "expected_bytes": [160, 1, 41, 23, 0, 0, 1, 0],
-      "note": "Protocol 4.1 (version byte 0x29)"
+      "expected_hex": "A0 01 28 21 00 00 01 00 00 00 00",
+      "expected_bytes": [160, 1, 40, 33, 0, 0, 1, 0, 0, 0, 0],
+      "note": "AUTH_MECH_LIST opcode=0x21, complete Protocol 4.0"
+    },
+    {
+      "description": "With non-zero media types",
+      "header": {
+        "magic": 160,
+        "messageId": 20,
+        "version": 40,
+        "opcode": 1,
+        "cacheName": "",
+        "flags": 0,
+        "clientIntelligence": 1,
+        "topologyId": 0,
+        "keyMediaType": 1,
+        "valueMediaType": 2,
+        "otherParamCount": 0
+      },
+      "expected_hex": "A0 14 28 01 00 00 01 00 01 02 00",
+      "expected_bytes": [160, 20, 40, 1, 0, 0, 1, 0, 1, 2, 0],
+      "note": "Key media type=1, Value media type=2, complete Protocol 4.0"
     }
   ],
   "operation_codes": {
-    "PUT": 1,
-    "GET": 3,
-    "REMOVE": 11,
-    "CONTAINS_KEY": 15,
-    "PING": 23,
-    "STATS": 21,
-    "GET_WITH_METADATA": 27
+    "PUT_REQUEST": 1,
+    "GET_REQUEST": 3,
+    "REMOVE_REQUEST": 11,
+    "PING_REQUEST": 23,
+    "AUTH_MECH_LIST_REQUEST": 33,
+    "AUTH_REQUEST": 35
   },
   "client_intelligence_values": {
     "BASIC": 1,
