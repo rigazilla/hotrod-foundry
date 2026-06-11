@@ -1,26 +1,62 @@
 # Step 2 Test Vectors: Protocol Headers
 
-This directory contains test vectors for validating Hot Rod protocol header implementations.
+This directory contains test vectors for validating Hot Rod protocol header ports.
+
+## ⚠️ CRITICAL WARNING: Protocol 4.0 Requires 11 Fields!
+
+**DO NOT use `request-header-test-cases.json` for Protocol 4.0 implementations!**
+
+The original test vectors show **incomplete** headers with only **8 fields**. Protocol 4.0 requires **11 fields**. Missing the 3 conditional fields causes **server timeout**!
+
+**Use these files instead:**
+- ✅ `request-header-protocol40-complete.json` - COMPLETE Protocol 4.0 (11 fields)
+- ✅ `ping-protocol40-complete.json` - COMPLETE PING operation headers
 
 ## Test Files
 
-| File | Description |
-|------|-------------|
-| `request-header-test-cases.json` | Request header encoding test cases |
-| `response-header-test-cases.json` | Response header decoding test cases |
+| File | Status | Description |
+|------|--------|-------------|
+| `request-header-protocol40-complete.json` | ✅ **USE THIS** | COMPLETE Protocol 4.0 request headers (11 fields) |
+| `request-header-test-cases.json` | ⚠️ **INCOMPLETE** | OLD - Missing 3 fields for Protocol 4.0 |
+| `response-header-test-cases.json` | ✅ OK | Response header decoding test cases |
 
-## Request Header Format
+## Request Header Format (Protocol 4.0 - COMPLETE)
+
+**All 11 fields required:**
 
 ```
-Magic (0xA0):        1 byte
-Message ID:          vLong
-Version:             1 byte (0x28 = Protocol 4.0)
-Opcode:              1 byte
-Cache Name:          string (vInt length + UTF-8)
-Flags:               vInt
-Client Intelligence: 1 byte
-Topology ID:         vInt
+1.  Magic (0xA0):          1 byte
+2.  Message ID:            vLong
+3.  Version:               1 byte (0x28 = 40 = Protocol 4.0)
+4.  Opcode:                1 byte
+5.  Cache Name:            string (vInt length + UTF-8)
+6.  Flags:                 vInt
+7.  Client Intelligence:   1 byte (0x01, 0x02, or 0x03)
+8.  Topology ID:           vInt
+9.  Key Media Type:        1 byte (REQUIRED if version >= 0x28) ⚠️
+10. Value Media Type:      1 byte (REQUIRED if version >= 0x28) ⚠️
+11. Other Param Count:     vInt (REQUIRED if version >= 40) ⚠️
 ```
+
+**Fields 9-11 are conditional but ALWAYS present for Protocol 4.0!**
+
+### Why These Fields Are Required
+
+From `hotrod40.ksy` lines 339-349:
+```yaml
+- id: key_media_type
+  if: version >= 28    # 0x28 = 40 decimal, so REQUIRED for Protocol 4.0
+  
+- id: value_media_type
+  if: version >= 28    # REQUIRED for Protocol 4.0
+  
+- id: other_param_count
+  if: version >= 40    # REQUIRED for Protocol 4.0 (40 decimal)
+```
+
+Since Protocol 4.0 has version byte `0x28` (40 decimal):
+- `version >= 28` (0x1C) is **TRUE** → media types required
+- `version >= 40` is **TRUE** → other_param_count required
 
 ## Response Header Format
 

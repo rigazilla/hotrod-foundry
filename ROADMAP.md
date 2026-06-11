@@ -1,4 +1,4 @@
-# Hot Rod Client Implementation Roadmap
+# Hot Rod Client Porting Roadmap
 
 **Version**: 2.0 (Infrastructure-First)  
 **Target Protocol**: Hot Rod 4.0 (extensible to 4.1)  
@@ -14,7 +14,7 @@ This roadmap defines **incremental, testable steps** for implementing a Hot Rod 
 - Mirrors **Java client tests** for validation
 - Can be **replicated in any language**
 
-## Implementation Philosophy: Infrastructure First
+## Porting Philosophy: Infrastructure First
 
 **Critical insight**: Build the foundation (Steps 0-5) before operations (Steps 6+).
 
@@ -46,7 +46,7 @@ Benefit: Release after Step 5 with PING only, add operations incrementally
 
 1. **Cross-Platform**: Linux (Fedora/RHEL) + Windows (MANDATORY)
 2. **Standalone Project**: Each language = separate repository with own CI/CD
-3. **Test-Driven**: Test vectors → Unit tests → Implementation → Integration tests
+3. **Test-Driven**: Test vectors → Unit tests → Porting → Integration tests
 4. **Track Progress**: Update PROGRESS.md after each step
 5. **Validate Bytes**: Compare with test vectors BEFORE testing against server
 6. **CI Required**: Automated builds and tests on every commit, both platforms
@@ -139,7 +139,7 @@ See `hotrod-foundry/docs/development-guidelines.md` for complete integration tes
 
 ## Step 1: Wire Format Primitives 🔤
 
-**Goal**: Implement basic protocol encoding/decoding (no network I/O yet)
+**Goal**: Port basic protocol encoding/decoding (no network I/O yet)
 
 ### Deliverables
 - [ ] Variable-length integer encoding/decoding (vInt - 32-bit)
@@ -247,7 +247,7 @@ Location: `hotrod-foundry/test-vectors/protocol-40-complete/*.json`
 | 14.x              | 4.0 (0x28)       | No (optional)  |
 | 15.x - 16.x       | 4.0/4.1 (0x28+)  | Yes (required) |
 
-**Important**: For Infinispan 15+, you MUST implement authentication (Step 3) before testing operations.
+**Important**: For Infinispan 15+, you MUST port authentication (Step 3) before testing operations.
 
 ### Java Reference
 - `org.infinispan.client.hotrod.impl.protocol.Codec40`
@@ -270,7 +270,7 @@ Location: `hotrod-foundry/test-vectors/protocol-40-complete/*.json`
 
 ## Step 3: Authentication (SASL) 🔐
 
-**Goal**: Implement SASL authentication required for Infinispan 15+
+**Goal**: Port SASL authentication required for Infinispan 15+
 
 **Why This Early?**
 Modern Infinispan servers (15.0+) require authentication by default. You cannot test PING or any other operation without it. While older versions (14.x) support unauthenticated access, implementing authentication now enables testing against current server versions.
@@ -307,7 +307,7 @@ Location: `hotrod-foundry/test-vectors/step-03-authentication/` (to be created)
 - auth-scram-challenge.json
 - auth-scram-response.json
 
-### Implementation Notes
+### Porting Notes
 
 **SCRAM-SHA-256 flow**:
 1. Client → Server: AUTH_MECH_LIST (query supported mechanisms)
@@ -398,7 +398,7 @@ Location: `hotrod-foundry/test-vectors/step-04-topology/` (to be created)
 - topology-update-response.json
 - multi-server-topology.json
 
-### Implementation
+### Porting
 
 **Client Intelligence levels**:
 - `0x01` (BASIC): No topology awareness, connects to initial server only
@@ -471,7 +471,7 @@ docker run -d --name node3 -p 11422:11222 \
 With consistent hashing, every GET/PUT goes directly to the right server (primary owner). Without it, requests bounce through multiple hops (remote GET). This is infrastructure that benefits ALL operations - implement it once, every operation inherits smart routing.
 
 ### Deliverables
-- [ ] Hash function implementation (MurmurHash3)
+ - [ ] MurmurHash3 implementation (in the port)
 - [ ] Consistent hash ring
 - [ ] Segment ownership mapping
 - [ ] Key-to-server routing
@@ -501,7 +501,7 @@ Location: `hotrod-foundry/test-vectors/step-05-hashing/` (to be created)
 - segment-ownership.json (segment mappings)
 - key-routing-examples.json (key → server)
 
-### Implementation
+### Porting
 
 **MurmurHash3**:
 ```cpp
@@ -618,7 +618,7 @@ Reference: `hotrod-foundry/docs/06-ping-operation.md`
 - Response format (header + status)
 - Testing with authenticated connection
 
-### Implementation
+### Porting
 ```cpp
 class Connection {
     void connect(const std::string& host, int port);

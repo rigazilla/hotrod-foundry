@@ -1,6 +1,6 @@
 # Step 1 Test Vectors: Wire Format Primitives
 
-This directory contains **language-agnostic test vectors** for validating wire format primitive implementations.
+This directory contains **language-agnostic test vectors** for validating wire format primitive ports.
 
 ## Test Files
 
@@ -46,7 +46,7 @@ ByteBufUtil.writeVInt(buf, 128);
 // Output: [0x80, 0x01]
 ```
 
-Compare your implementation's output byte-for-byte.
+Compare your port's output byte-for-byte.
 
 ## Test Coverage
 
@@ -96,7 +96,7 @@ Compare your implementation's output byte-for-byte.
 
 ## Cross-Language Validation
 
-These test vectors are designed to validate implementations in **any language**:
+These test vectors are designed to validate ports in **any language**:
 
 ```
 C++:      std::vector<uint8_t> matches expected_bytes

@@ -2,30 +2,30 @@
 
 ## Project Structure Requirements
 
-Each language implementation MUST be a **standalone, isolated project** in its own repository:
+Each language port MUST be a **standalone, isolated project** in its own repository:
 
 ### Repository Structure
 ```
 your-language-client/
 ├── README.md                    # Project-specific README
-├── PROGRESS.md                  # Implementation progress tracker
+├── PROGRESS.md                  # Porting progress tracker
 ├── LICENSE                      # License file
 ├── .gitignore                   # Language-specific ignores
 ├── src/                         # Source code
 ├── tests/                       # Test suite
 ├── .github/workflows/           # CI/CD pipeline
 │   └── build.yml               # Automated builds + tests
-└── docs/                        # Implementation-specific docs
+└── docs/                        # Port-specific docs
     └── (can link to hotrod-foundry docs)
 ```
 
 **Separation of Concerns:**
 - **hotrod-foundry/** = Language-agnostic documentation + test vectors
-- **your-client/** = Language-specific implementation + progress tracking
+- **your-client/** = Language-specific port + progress tracking
 
 ### Progress Tracking (PROGRESS.md)
 
-**REQUIRED**: Every implementation must maintain `PROGRESS.md`
+**REQUIRED**: Every port must maintain `PROGRESS.md`
 
 See `templates/PROGRESS.md.template` for the standard format.
 
@@ -187,7 +187,7 @@ class TestIntegration:
 
 ## CI/CD Requirements
 
-**REQUIRED**: Every implementation must have automated CI/CD
+**REQUIRED**: Every port must have automated CI/CD
 
 **MANDATORY**: CI must test on BOTH Linux and Windows
 
@@ -367,9 +367,9 @@ path = os.path.join("data", "config", "server.conf")
 **When platform-specific code is unavoidable**:
 ```cpp
 #ifdef _WIN32
-    // Windows implementation
+    // Windows port
 #else
-    // Linux/Unix implementation
+    // Linux/Unix port
 #endif
 ```
 

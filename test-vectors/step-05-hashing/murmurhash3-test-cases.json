@@ -1,0 +1,19 @@
+{
+  "description": "MurmurHash3 test cases - x64_32 variant with seed=9001",
+  "reference": "org.infinispan.commons.hash.MurmurHash3",
+  "seed": 9001,
+  "variant": "x64_32",
+  "note": "hash32 = (int)(hash64 >>> 32) - upper 32 bits of 64-bit hash",
+  "test_cases": [
+    {"description": "Empty string", "input": "", "bytes": [], "hash32": 89125410},
+    {"description": "Single character", "input": "a", "bytes": [97], "hash32": -1119243492},
+    {"description": "Basic ASCII string", "input": "hello", "bytes": [104, 101, 108, 108, 111], "hash32": 1671093224},
+    {"description": "String with space and punctuation", "input": "Hello World!", "bytes": [72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100, 33], "hash32": 1398840341},
+    {"description": "Typical cache key", "input": "key1", "bytes": [107, 101, 121, 49], "hash32": -1758694083},
+    {"description": "Namespace key", "input": "user:12345", "bytes": [117, 115, 101, 114, 58, 49, 50, 51, 52, 53], "hash32": -1064174856},
+    {"description": "UTF-8 string", "input": "caf\u00e9", "bytes": [99, 97, 102, -61, -87], "hash32": -1623864979},
+    {"description": "Long string", "input": "The quick brown fox jumps over the lazy dog", "bytes": [84, 104, 101, 32, 113, 117, 105, 99, 107, 32, 98, 114, 111, 119, 110, 32, 102, 111, 120, 32, 106, 117, 109, 112, 115, 32, 111, 118, 101, 114, 32, 116, 104, 101, 32, 108, 97, 122, 121, 32, 100, 111, 103], "hash32": 1049944299},
+    {"description": "Binary data", "input": "\u0000\u0001\u0002\u0003\u0004\u0005\u0006\u0007\u0008\t", "bytes": [0, 1, 2, 3, 4, 5, 6, 7, 8, 9], "hash32": -1555424902},
+    {"description": "100 zero bytes", "input": "\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000", "bytes": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], "hash32": -1442050938}
+  ]
+}

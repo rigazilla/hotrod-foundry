@@ -12,7 +12,7 @@ Thumbs.db
 # Claude
 .claude/
 
-# Implementation directories (implementations go in separate repos)
+# Port directories (ports go in separate repos)
 implementations/
 
 # Temporary files

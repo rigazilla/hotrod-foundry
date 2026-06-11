@@ -1,4 +1,4 @@
-# Infinispan Hot Rod Client Implementation Guide
+# Infinispan Hot Rod Client Porting Guide
 
 This repository provides comprehensive, language-agnostic documentation for implementing Infinispan Hot Rod protocol clients in any programming language.
 
@@ -12,12 +12,12 @@ Enable developers (with AI coding assistants like Claude Code) to implement prod
 
 ## Quick Start
 
-**Implementing a new client?** Start here:
+**Porting a new client?** Start here:
 
 1. Read [ROADMAP.md](ROADMAP.md) - Understand the incremental steps
 2. Check [PROGRESS.md](PROGRESS.md) - See current status
 3. Follow documentation in order: `docs/01-wire-format-primitives.md` → `docs/02-protocol-headers.md` → etc.
-4. Use test vectors in `test-vectors/` to validate your implementation
+4. Use test vectors in `test-vectors/` to validate your port
 5. Reference Java implementation: `../infinispan/client/hotrod-client/`
 
 **Starting an AI session?** Read [SESSION_START.md](SESSION_START.md) first.
@@ -26,7 +26,7 @@ Enable developers (with AI coding assistants like Claude Code) to implement prod
 
 ```
 ├── ROADMAP.md              # Step-by-step implementation plan
-├── PROGRESS.md             # Current progress across all implementations
+├── PROGRESS.md             # Current progress across all ports
 ├── SESSION_START.md        # AI assistant session startup guide
 ├── docs/                   # Language-agnostic documentation
 │   ├── 01-wire-format-primitives.md
@@ -41,7 +41,7 @@ Enable developers (with AI coding assistants like Claude Code) to implement prod
 │   ├── step-01-primitives/
 │   ├── step-02-headers/
 │   └── ...
-└── implementations/        # Links to separate implementation repos
+└── implementations/        # Links to separate port repos
     ├── cpp.md              # → infinispan-hotrod-cpp
     └── csharp.md           # → infinispan-hotrod-csharp
 ```
@@ -60,16 +60,16 @@ This documentation is derived from:
 
 3. **Protocol Documentation**: [Infinispan Hot Rod Protocol Spec](https://infinispan.org/docs/stable/titles/hotrod_protocol/hotrod_protocol.html)
 
-## Implementation Repositories
+## Port Repositories
 
-Each implementation is a **separate, standalone repository** with its own:
+Each port is a **separate, standalone repository** with its own:
 - Build system and CI/CD
 - Documentation (linking back to this repo)
 - Test suite (mirroring Java tests)
 - Examples and getting started guides
-- PROGRESS.md tracking implementation status
+- PROGRESS.md tracking port status
 
-Current implementations:
+Current ports:
 
 - [**C++17 Client**](implementations/cpp17.md) → `../cpp17-client/`
 - [**C# Client**](implementations/csharp.md) → `../csharp-client/` *(planned)*
@@ -90,7 +90,7 @@ Each step:
 For each step:
   1. Read language-agnostic documentation
   2. Identify Java reference classes
-  3. Implement in target language
+   3. Port to target language
   4. Port Java tests
   5. Validate against test vectors
   6. Update PROGRESS.md
@@ -100,21 +100,21 @@ For each step:
 ### Cross-Language Validation
 
 Documentation is validated when:
-- C++ implementation works using only the docs
-- C# implementation can replicate without looking at C++ code
+- C++ port works using only the docs
+- C# port can replicate without looking at C++ code
 - Wire format matches Java byte-for-byte (verified with Wireshark)
 
 ## Progress Tracking
 
 See [PROGRESS.md](PROGRESS.md) for:
 - Overall completion status
-- Per-implementation progress
+- Per-port progress
 - Current focus and next steps
 - Session handoff notes
 
 ## Contributing
 
-To add a new language implementation:
+To add a new language port:
 
 1. Create separate repository (e.g., `infinispan-hotrod-go`)
 2. Follow the ROADMAP steps in order
